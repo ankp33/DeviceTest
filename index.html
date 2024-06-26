@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif; /* Use a common font for readability */
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid black;
+            padding: 10px;
+            background-color: lightgrey;
+            color: white;
+            width: 100%; /* Set a fixed width for the container */
+        }
+
+        .button-groups {
+            display: flex;
+            width: 100%;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 15px; /* Spacing between button groups */
+        }
+
+        .button-groups div {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Adjust spacing between buttons */
+        }
+
+        .button-groups button {
+            border: 1px solid black;
+
+            background-color: darkred;
+            color: white;
+            border: none;
+            font-size: 24px; /* Increase font size for larger buttons */
+            padding: 15px 20px; /* Increase padding for larger touch area */
+            cursor: pointer;
+        }
+
+        .visualizer-container {
+            flex: 1; /* Grow to fill remaining space */
+            margin-top: 0 px; /* Add margin to top for better spacing */
+            width: 70%; /* Fill entire space of .visualizer-container */
+            height: 40%; 
+        }
+
+        #visualizer {
+            border: 10px solid black;
+            margin-top: 15px;
+
+            width: 100%; /* Fill entire space of .visualizer-container */
+            height: 100%; /* Fill entire space of .visualizer-container */
+            background-color: #333;
+        }
+
+        /* Adjustments for responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                width: 100%; /* Adjust width for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <h1 style="color: black; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Audio/Mic Test</h1>
+
+        <audio id="left" src="leftAudio2.mp3"></audio>
+        <audio id="leftRight" src="leftRightAudio2.mp3"></audio>
+        <audio id="right" src="rightAudio2.mp3"></audio>
+
+        <div class="button-groups">
+            <!-- Button Group 1 -->
+            <div>
+                <button type="button" onclick="playAudio('left');">&#9664;</button>
+                <button type="button" onclick="playAudio('leftRight');">&#9664; &#9654;</button>
+                <button type="button" onclick="playAudio('right');">&#9654;</button>
+            </div>
+
+            <!-- Button Group 2 -->
+            <div>
+                <button type="button" style="background-color: darkgreen;" onclick="playAudio('left');">&#9664;</button>
+                <button type="button" style="background-color: darkgreen;" onclick="playAudio('leftRight');">&#9664; &#9654;</button>
+                <button type="button" style="background-color: darkgreen;" onclick="playAudio('right');">&#9654;</button>
+            </div>
+
+            <!-- Button Group 3 -->
+            <div>
+                <button type="button" style="background-color: darkblue;" onclick="playAudio('left');">&#9664;</button>
+                <button type="button" style="background-color: darkblue;" onclick="playAudio('leftRight');">&#9664; &#9654;</button>
+                <button type="button" style="background-color: darkblue;" onclick="playAudio('right');">&#9654;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualizer Container -->
+    <div class="visualizer-container">
+        <!-- Canvas for Visualizer -->
+        <canvas id="visualizer"></canvas>
+    </div>
+</div>
+
+<script>
+    var currentAudio = null;
+
+    function playAudio(audioId) {
+        var audio = document.getElementById(audioId);
+
+        // Pause the currently playing audio if different from the new one
+        if (currentAudio && currentAudio !== audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+
+        // Play the selected audio
+        audio.play();
+        currentAudio = audio;
+    }
+
+    // Audio Visualizer Script
+    var canvas = document.getElementById('visualizer');
+    var canvasCtx = canvas.getContext('2d');
+
+    var WIDTH;
+    var HEIGHT;
+
+    function setupVisualizer() {
+        var visualizerContainer = document.querySelector('.visualizer-container');
+        WIDTH = canvas.width = visualizerContainer.offsetWidth;
+        HEIGHT = canvas.height = visualizerContainer.offsetHeight;
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var source = audioCtx.createMediaStreamSource(stream);
+                var analyser = audioCtx.createAnalyser();
+
+                analyser.fftSize = 2048;
+                var bufferLength = analyser.frequencyBinCount;
+                var dataArray = new Uint8Array(bufferLength);
+
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+
+                function draw() {
+                    analyser.getByteTimeDomainData(dataArray);
+
+                    canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+                    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeStyle = 'rgb(255, 255, 255)';
+                    canvasCtx.beginPath();
+
+                    var sliceWidth = WIDTH * 1.0 / bufferLength;
+                    var x = 0;
+
+                    for(var i = 0; i < bufferLength; i++) {
+                        var v = dataArray[i] / 128.0;
+                        var y = v * HEIGHT/2;
+
+                        if(i === 0) {
+                            canvasCtx.moveTo(x, y);
+                        } else {
+                            canvasCtx.lineTo(x, y);
+                        }
+
+                        x += sliceWidth;
+                    }
+
+                    canvasCtx.lineTo(canvas.width, canvas.height/2);
+                    canvasCtx.stroke();
+
+                    requestAnimationFrame(draw);
+                }
+
+                draw();
+            })
+            .catch(function(err) {
+                console.error('Error accessing microphone input:', err);
+            });
+    }
+
+    setupVisualizer();
+</script>
+    <div id="camera-preview" style="display: flex;
+        margin: 10px;
+        min-height: 300;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 10px solid black;
+        padding: 10px;
+        background-color: lightgrey;
+        color: white;
+        width: 100%;">
+        <h1 style="color: black; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Camera Test</h1>
+        
+        <button style="border: 1px solid black;
+            background-color: darkred;
+            color: white;
+            border: none;
+            margin-top: 15;
+            font-size: 24px; /* Increase font size for larger buttons */
+            padding: 15px 20px; /* Increase padding for larger touch area */
+            cursor: pointer;" flipCamera()">Flip Camera</button>
+        </div>
+    
+
+    <script>
+        // Get access to the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            var video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            video.width = 300; // Adjust these dimensions as needed
+            video.height = 300; // Adjust these dimensions as needed
+
+            var preview = document.getElementById('camera-preview');
+            preview.appendChild(video);
+        })
+        .catch(function(error) {
+            console.log('Error accessing the camera:', error);
+        });
+
+        function flipCamera() {
+            var video = document.querySelector('video');
+            var track = video.srcObject.getVideoTracks()[0];
+
+            // Toggle the facingMode between 'user' and 'environment'
+            var facingMode = track.getSettings().facingMode;
+            var newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+
+            track.applyConstraints({ facingMode: newFacingMode })
+            .then(function() {
+                console.log('Camera facing mode switched to:', newFacingMode);
+            })
+            .catch(function(error) {
+                console.log('Error flipping camera:', error);
+            });
+        }
+    </script>
+
+</body>
+</html>

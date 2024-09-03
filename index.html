@@ -164,7 +164,17 @@
       </div>
       <div id="visualizer"></div>
       <div>
-        <select id="micSource"></select>
+        <select id="micSource" style="
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+  
+"> </select>  
         <button id="toggleButton">Pause Audio / Start Mic</button>
       </div>
       <div class="warning" style="background-color: orange; font-size: 14px; margin-top: 10px;">DO NOT TEST AUDIO AND MIC AT THE SAME TIME WHEN TESTING HEADPHONES</div>
@@ -266,7 +276,7 @@
 
                 analyser.getByteFrequencyData(dataArray);
 
-                canvasCtx.fillStyle = '#45a049';
+                canvasCtx.fillStyle = 'orange';
                 canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
                 const barWidth = (WIDTH / bufferLength) * 2.5;
@@ -275,7 +285,7 @@
                 for (let i = 0; i < bufferLength; i++) {
                   const barHeight = dataArray[i];
 
-                  canvasCtx.fillStyle = `orange`;
+                  canvasCtx.fillStyle = `#45a049`;
                   canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
 
                   x += barWidth + 1;

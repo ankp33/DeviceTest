@@ -192,7 +192,6 @@
 
       <div style="display: flex; align-items: center; justify-content: space-between;">
     <div style="flex: 1; margin-right: 10px;">
-      <p> Mic Source: </p>
       <select id="micSource"> </select>  
     </div>
         <button id="toggleButton" style="flex-shrink: 0; max-width: 200px;" >Pause/Start Mic</button>
@@ -336,12 +335,12 @@
         if (micActive) {
           micActive = false;
           audioActive = true;
-          toggleButton.textContent = "Pause Audio / Start Mic";
+          toggleButton.textContent = "Pause / Start Mic";
           stopAudioContext();
         } else {
           micActive = true;
           audioActive = false;
-          toggleButton.textContent = "Stop Mic";
+          toggleButton.textContent = "Stop Mic ";
           pauseAllAudio();
           startAudioContext();
         }

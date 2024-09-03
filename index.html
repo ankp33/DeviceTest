@@ -146,7 +146,7 @@
   
     <!-- Audio/Mic Test Section -->
     <div class="box" style="margin-top: 20px;" >
-      <div class="warning">Alarm/Mic Test</div>
+      <div class="warning">Audio / Microphone Test</div>
       <div>
         <button class="left">&#9664;</button>
         <button class="play">&#9664; &#9654;</button>
@@ -321,6 +321,14 @@
       const rightAudio = new Audio('AudioRight.mp3');
       const playAudio = new Audio('Audio.mp3');
 
+      const leftAudio2 = new Audio('Audio2Left.mp3');
+      const rightAudio2 = new Audio('Audio2Right.mp3');
+      const playAudio2 = new Audio('Audio2.mp3');
+
+      const leftAudio3 = new Audio('Audio3Left.mp3');
+      const rightAudio3 = new Audio('Audio3Right.mp3');
+      const playAudio3 = new Audio('Audio3.mp3');
+
       function pauseAllAudio() {
         leftAudio.pause();
         leftAudio.currentTime = 0;
@@ -328,6 +336,21 @@
         rightAudio.currentTime = 0;
         playAudio.pause();
         playAudio.currentTime = 0;
+
+        leftAudio2.pause();
+        leftAudio2.currentTime = 0;
+        rightAudio2.pause();
+        rightAudio2.currentTime = 0;
+        playAudio2.pause();
+        playAudio2.currentTime = 0;
+
+        leftAudio3.pause();
+        leftAudio3.currentTime = 0;
+        rightAudio3.pause();
+        rightAudio3.currentTime = 0;
+        playAudio3.pause();
+        playAudio3.currentTime = 0;
+        
       }
 
       document.querySelectorAll('.left').forEach(button => {
@@ -356,6 +379,66 @@
           }
         });
       });
+
+      //2
+
+      document.querySelectorAll('.left2').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            leftAudio2.play();
+          }
+        });
+      });
+
+      document.querySelectorAll('.right2').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            rightAudio2.play();
+          }
+        });
+      });
+
+      document.querySelectorAll('.play2').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            playAudio2.play();
+          }
+        });
+      });
+
+      //3
+
+      document.querySelectorAll('.left3').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            leftAudio2.play();
+          }
+        });
+      });
+
+      document.querySelectorAll('.right3').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            rightAudio2.play();
+          }
+        });
+      });
+
+      document.querySelectorAll('.play3').forEach(button => {
+        button.addEventListener('click', () => {
+          if (audioActive) {
+            pauseAllAudio();
+            playAudio2.play();
+          }
+        });
+      });
+
+      //
 
       toggleButton.addEventListener('click', toggleAudioMic);
       micSourceSelect.addEventListener('change', () => {

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Price Tag Generator — 4 per Letter (Print-Fixed)</title>
+<style>
+  :root{
+    --blue:#0b56b7;
+    --yellow:#ffd447;
+    --red:#d93025;
+    --black:#000;
+    --white:#fff;
+
+    /* Screen layout spacing */
+    --screen-gap:0.25in;
+    --line:0.06in; /* border thickness */
+
+    /* PRINT CONSTANTS — letter, landscape */
+    --page-w:11in;     /* physical page width  */
+    --page-h:8.5in;    /* physical page height */
+    --page-margin:0.05in; /* hard page margin via @page */
+    --gap:0.05in;      /* internal gap between tags when printing */
+    --fudge:0.5in;    /* slight shrink to avoid rounding overflow on some drivers */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family: Inter, Arial, system-ui, sans-serif;background:#f4f6f8;color:#111;}
+
+  /* ======= PRINT LAYOUT (REWRITTEN) ======= */
+  @page{ size: letter landscape; margin: var(--page-margin); }
+
+  @media print{
+    html, body{ width: var(--page-w); height: var(--page-h); background:#fff; }
+    body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print{ display:none !important; }
+
+    /* Compute the exact printable box and split into a perfect 2×2 grid. */
+    .sheet{
+      /* Printable inner box (page minus margins) */
+      --printable-w: calc(var(--page-w) - 3 * var(--page-margin));
+      --printable-h: calc(var(--page-h) - 3 * var(--page-margin));
+
+      /* Each cell: (printable - one gap) / 2, minus tiny fudge to prevent overflow */
+      --cell-w: calc((var(--printable-w) - var(--gap) - var(--fudge)) / 4);
+      --cell-h: calc((var(--printable-h *2) - var(--gap) - var(--fudge)) / 4);
+
+      width: var(--printable-w);
+      height: var(--printable-h);
+      margin: 0; padding: 0;
+      display:grid;
+      grid-template-columns: var(--cell-w) var(--cell-w);
+      grid-template-rows: var(--cell-h) var(--cell-h);
+      gap: var(--gap);
+    }
+
+    .tag{ border:var(--line) solid #000; border-radius:8px; height:100%; width:100%;
+      page-break-inside: avoid; break-inside: avoid; overflow:hidden; }
+
+    /* Ensure text prints solid black where required */
+    .name, .desc, .price-box, .msrp { color:#000 !important; }
+
+    /* Slightly reduce logo height in print to guarantee fit */
+    img.logo{ max-height:0.6in; width:auto; }
+
+    /* Remove any outlines/carets for contenteditable on print */
+    [contenteditable]{ outline:0 !important; caret-color: transparent; }
+  }
+
+  /* ======= Screen UI / Live editing ======= */
+  .page-actions{ position:sticky; top:0; left:0; right:0; background:#fff; padding:10px; display:flex; gap:8px; z-index:50; border-bottom:1px solid #ddd; }
+  .btn{ border:0; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:0 2px 6px #0001; }
+  .btn.primary{ background:#000; color:#fff; }
+  .btn.ghost{ background:#fff; color:#000; border:1px solid #d8dde4; }
+
+  /* On screen we use an auto-resizing grid; print overrides it completely */
+  .sheet{ padding:var(--screen-gap); display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:var(--screen-gap); min-height:calc(100vh - 60px); }
+
+  .tag{ position:relative; border:var(--line) solid #000; border-radius:12px; background:#fff; overflow:hidden; display:flex; flex-direction:column; height:100%; }
+
+  .tag-header{ padding:0.12in 0.16in; background:var(--bg,#0b56b7); color:var(--header-fg,#fff); text-align:center; font-weight:800; font-size:14px; }
+  .theme-manager{ --bg:#d93025; --header-fg:#fff; border-color:#d93025; }
+
+  .controls{ position:absolute; left:10px; top:10px; display:flex; gap:8px; align-items:center; background:#ffffffd8; border:1px solid #e5e7eb; padding:6px 8px; border-radius:10px; box-shadow:0 2px 6px #0001; }
+  .controls label{ font-size:12px; color:#334; display:flex; gap:6px; align-items:center; }
+  .controls select{ padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:12px; }
+  .controls .mini{ padding:6px 8px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; font-size:12px; cursor:pointer; }
+
+  .price-row{ display:flex; gap:0.12in; justify-content:center; }
+  .price-col{ flex:1; display:flex; flex-direction:column; gap:0.06in; }
+  .price-title{ padding:6px 8px; font-size:15px; font-weight:800; text-align:center; border-radius:8px; color:#fff; background:transparent; }
+  .price-box{ border:var(--line) solid #000; border-radius:8px; background:var(--priceBg,#ffd447); color:var(--priceFg,#000); padding:10px; text-align:center; font-weight:900; font-size:40px; line-height:1; min-height:1.2em; }
+
+  .divider{ height:0; border-top:var(--line) solid rgba(0,0,0,.15); }
+  .item{ padding:0.02in 0.04in 0.02in; flex:1; display:flex; flex-direction:column; justify-content:center; gap:0.12in; text-align:center; }
+
+  .name{ font-size:36px; font-weight:900;margin-top:12px; line-height:1.05; text-align:center; color:#000; }
+  .desc{ font-size:24px; margin-top:6px; opacity:0.95; text-align:center; color:#000; }
+
+  .footer{ display:flex;   margin-top: auto;         /* pushes logo to the bottom */
+; justify-content:space-between; align-items:end; gap:0px; padding:0 0.00in 0.00in; }
+  .logo{ height:0.8in; width:auto; max-width:2in; object-fit:contain; }
+  .msrp-wrap{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .msrp{ font-size:22px; font-weight:900; text-decoration: line-through; color:#000; }
+  .msrp-note{ font-size:11px; opacity:.85; max-width:3.6in; text-align:right; }
+
+  .ribbon{ position:absolute; right:285px; top:270px; width:180px; text-align:center; transform:rotate(0deg); background:#d93025; color:#fff; font-weight:900; padding:6px 0; font-size:12px; box-shadow:0 2px 6px #0002; }
+
+  /* Small screens */
+  @media (max-width:900px){
+    .name{ font-size:28px }
+    .desc{ font-size:14px }
+    .price-box{ font-size:32px }
+    .logo{ height:1.2in }
+  }
+</style>
+</head>
+<body>
+<div class="page-actions no-print">
+  <button class="btn ghost" id="setLogoAll">Set Logo (all)</button>
+  <button class="btn primary" id="printBtn" title="Print 4 tags on one Letter page">Print</button>
+</div>
+
+<div class="sheet" id="sheet"></div>
+
+<script>
+  // ======= Simple data model =======
+  const defaultTag = () => ({ name:'Item Name', desc:'Short description…', otherPrice:'0.00', cashPrice:'0.00', msrp:'', showOther:true, showCash:true, showMsrp:false, theme:'regular', logoUrl:'' });
+  let tags = [defaultTag(), defaultTag(), defaultTag(), defaultTag()];
+  let globalLogo = 'https://openbox.ca/cdn/shop/files/logo-463x120_200x@2x.png?v=1614286415';
+
+  const money = v => {
+    if (v===undefined || v===null || v==='') return '';
+    const n = Number(String(v).replace(/[^0-9.\-]/g,''));
+    if (isNaN(n)) return '';
+    return '$'+n.toFixed(2);
+  }
+  function sanitizeNumberText(s){ const n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(n)?'':n.toFixed(2); }
+
+  function priceSectionHTML(t,i){
+    const count = (t.showOther?1:0) + (t.showCash?1:0);
+    if (count===0) return '';
+    if (count===1){
+      const field = t.showOther ? 'otherPrice' : 'cashPrice';
+      const value = t[field] || '0.00';
+      return `<div class="price-row"><div class="price-col"><div class="price-title">PRICE</div><div class="price-box" contenteditable data-field="${field}" data-idx="${i}">${money(value)||'$0.00'}</div></div></div>`;
+    }
+    return `<div class="price-row"><div class="price-col"><div class="price-title">OTHER PAYMENT PRICE</div><div class="price-box" contenteditable data-field="otherPrice" data-idx="${i}">${money(t.otherPrice)||'$0.00'}</div></div><div class="price-col"><div class="price-title">CASH / DEBIT PRICE</div><div class="price-box" contenteditable data-field="cashPrice" data-idx="${i}">${money(t.cashPrice)||'$0.00'}</div></div></div>`;
+  }
+
+  function tagHTML(t,i){
+    const logo = t.logoUrl || globalLogo || '';
+    const attrs = t.theme==='manager' ? ' theme-manager' : '';
+    const ribbon = t.theme==='manager' ? `<div class="ribbon">MANAGER SPECIAL</div>` : '';
+    const msrpNote = t.showMsrp ? `<div class="msrp-note">Local MSRP is updated weekly; verify online.</div>` : '';
+
+    return `<div class="tag${attrs}" data-idx="${i}">
+      ${ribbon}
+      <div class="controls no-print" data-idx="${i}">
+        <label><input type="checkbox" data-field="showOther" ${t.showOther? 'checked': ''}> Other</label>
+        <label><input type="checkbox" data-field="showCash" ${t.showCash? 'checked': ''}> Cash</label>
+        <label><input type="checkbox" data-field="showMsrp" ${t.showMsrp? 'checked': ''}> MSRP</label>
+        <select data-field="theme"><option value="regular" ${t.theme==='regular'? 'selected':''}>Regular</option><option value="manager" ${t.theme==='manager'? 'selected':''}>Manager Special</option></select>
+        <button class="mini" data-action="setLogoOne">Logo</button>
+      </div>
+
+      <div class="tag-header">${priceSectionHTML(t,i)}</div>
+      <div class="divider"></div>
+      <div class="item">
+        <div class="item-text">
+          <div class="name" contenteditable data-field="name" data-idx="${i}">${escapeHtml(t.name)}</div>
+          <div class="desc" contenteditable data-field="desc" data-idx="${i}">${escapeHtml(t.desc)}</div>
+        </div>
+        <div class="footer">
+          <div class="left">${logo?`<img class="logo" src="${escapeAttr(logo)}" alt="logo"/>`:''}</div>
+<div class="msrp-wrap">${t.showMsrp ? `MSRP:<del contenteditable data-field="msrp" data-idx="${i}">${money(t.msrp) || '$0.00'}</del>` : ''}${msrpNote}</div>
+
+
+
+
+
+
+
+      </div>
+      </div>
+    </div>`;
+  }
+
+  // Escape helpers
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escapeAttr(s){ return String(s||'').replace(/"/g,'&quot;'); }
+
+  function render(){
+    document.getElementById('sheet').innerHTML = tags.map((t,i)=>tagHTML(t,i)).join('');
+  }
+
+  // Editing behavior
+  const sheet = document.getElementById('sheet');
+  sheet.addEventListener('input', e => {
+    const el = e.target;
+    if (el.matches('[contenteditable][data-field]')){
+      const idx = Number(el.dataset.idx);
+      const field = el.dataset.field;
+      if (['otherPrice','cashPrice','msrp'].includes(field)){
+        tags[idx][field] = String(el.textContent||'').replace(/[^0-9.\-]/g,'');
+      } else {
+        tags[idx][field] = el.textContent.trim();
+      }
+    }
+  });
+
+  sheet.addEventListener('focusout', e => {
+    const el = e.target;
+    if (el.matches('[contenteditable][data-field]')){
+      const idx = Number(el.dataset.idx);
+      const field = el.dataset.field;
+      if (['otherPrice','cashPrice','msrp'].includes(field)){
+        tags[idx][field] = sanitizeNumberText(tags[idx][field]);
+      }
+      render();
+    }
+  });
+
+  sheet.addEventListener('change', e => {
+    const ctr = e.target.closest('.controls');
+    if(!ctr) return;
+    const idx = Number(ctr.dataset.idx);
+    const target = e.target;
+    if (target.matches('input[type="checkbox"][data-field]')){
+      tags[idx][target.dataset.field] = target.checked;
+      render();
+    }
+    if (target.matches('select[data-field]')){
+      tags[idx].theme = target.value;
+      render();
+    }
+  });
+
+  sheet.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action="setLogoOne"]');
+    if (!btn) return;
+    const idx = Number(btn.parentElement.dataset.idx);
+    const url = prompt('Logo URL for this tag (leave empty to clear):', tags[idx].logoUrl || globalLogo || '');
+    if (url === null) return;
+    tags[idx].logoUrl = (url||'').trim();
+    render();
+  });
+
+  document.getElementById('setLogoAll').addEventListener('click', () => {
+    const url = prompt('Logo URL to apply to ALL tags (leave empty to clear):', globalLogo||'');
+    if (url === null) return;
+    globalLogo = (url||'').trim();
+    render();
+  });
+
+  // Explicit print handler — ensures last edits are rendered before print
+  document.getElementById('printBtn').addEventListener('click', () => {
+    // Force a reflow to commit any pending contenteditable changes
+    render();
+    requestAnimationFrame(() => { window.print(); });
+  });
+
+  // Initial render
+  render();
+  window._tags = tags;
+</script>
+</body>
+</html>
+
+
+

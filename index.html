@@ -2,56 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Device Test 1.20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Device Test 2.1</title>
   <style>
+    /* --- COLOR VARIABLES --- */
+    :root {
+        --evergreen: #1b5e20;        /* Main Theme Color */
+        --evergreen-light: #2e7d32;  /* Hover Color */
+        --evergreen-dark: #003300;   /* Active/Darker */
+        --bg-color: #f0f0f0;
+    }
+
     body {
       font-family: Helvetica, sans-serif;
       margin: 0;
       padding: 0;
-      align-items: center;
-      background-color: f0f0f0;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    .header {
-      background-color: #4CAF50;
-      color:white;
-      padding: 10px;
-      text-align: center
-      box-sizing: border-box;
-    }
+    
+    /* --- LAYOUT --- */
     #mainDiv {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: row; 
       justify-content: center;
       align-items: stretch;
-      background-color: #f0f0f0;
-      padding: 10px
-         border-radius: 8px;
-      flex-direction: row;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      gap: 10px;
+
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
       box-sizing: border-box;
     }
+
     .box {
-      max-width: 400px;
-      width: 100%;
+      flex: 0 1 600px;
+      min-width: 300px;
+      max-width: 600px; 
       background-color: #ffffff;
-      border: 3px solid black;
-      margin: 2px;
       border: 2px solid #dddddd;
       border-radius: 8px;
-      flex-grow: 1;
       display: flex;
-      flex-direction:
-        column;box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      flex-direction: column;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-      min-height: 100px;
+      padding: 10px;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
     }
+
+    @media (max-width: 700px) {
+      #mainDiv { flex-direction: column; align-items: center; }
+      .box { width: 100%; max-width: 100%; }
+    }
+
+    /* --- BUTTONS --- */
     button {
-      background-color: green;
+      background-color: var(--evergreen);
       border: none;
       color: white;
       padding: 10px 20px;
@@ -59,733 +68,514 @@
       text-decoration: none;
       display: inline-block;
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 5px;
       cursor: pointer;
       border-radius: 5px;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.1s;
+    }
+    button:hover { background-color: var(--evergreen-light); } 
+    button:active { transform: scale(0.98); }
+    button.active-layout { background-color: var(--evergreen-dark); border: 2px solid #000; }
+
+    /* --- IMPROVED SELECT BAR --- */
+    .select-wrapper {
+        position: relative;
+        width: 100%;
+        margin-top: 10px;
     }
     select {
-    font-family: Helvetica, sans-serif;
-    font-size: 16px;
-    padding: 7px;
-    margin-top: 10px;
-    border: 2px solid #dddddd;
-    border-radius: 5px;
-    background-color: green;
-    color: #333333;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-family: Helvetica, sans-serif;
+      font-size: 16px;
+      padding: 10px 40px 10px 15px; /* Space for arrow */
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: var(--evergreen);
+      color: white;
+      width: 100%;
+      box-sizing: border-box;
+      appearance: none; /* Remove default arrow */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
     }
-    
-    select:hover {
-        border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-    }
-    
-    select:focus {
-        border-color: #4CAF50;
-        outline: none;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.8);
-    }
+    select:hover { background-color: var(--evergreen-light); }
+    select:focus { outline: none; box-shadow: 0 0 0 2px rgba(27, 94, 32, 0.4); }
     
     .warning {
-      background-color: green;
+      background-color: var(--evergreen);
       width: 100%;
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding: 10px;
       color: white;
       text-align: center;
       font-weight: bold;
       border-radius: 4px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
     }
-    button:hover {
-    background-color: #45a049; } 
+
+    /* --- AUDIO BUTTONS --- */
+    .audio-row {
+        display: flex;
+        width: 100%;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+    .audio-row button {
+        flex: 1; 
+        padding: 15px 10px;
+        margin-top: 0;
+        background-color: var(--evergreen); 
+    }
+    .audio-row button:hover { background-color: var(--evergreen-light); }
     
     #visualizer {
-      width: 100%;
-      height: 120px;
-      border-radius: 5px;
-      overflow: hidden;
-      background-color: green; 
-
-      color: green;
-      margin-top: 20px;
-    }
-    #visualizer canvas {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .camera-box {
-      text-align: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 5px;
-      max-height: 100%;
-    }
-    .camera-box img {
-      max-width: 100%;
-      max-height: 400px;
-      border: 1px black solid;
-    }
-    .description {
-        font-size: 14px;
-        font-family: Arial, sans-serif;
+        width: 100%;
+        height: 120px;
+        background-color: #ff9800; /* Darker bg for contrast */
+        border-radius: 4px;
         margin-top: 10px;
-        color: #666666;
+        overflow: hidden;
     }
-    .keyboard-key {
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+    #visualizer canvas { width: 100%; height: 100%;}
+
+    /* Camera Container */
+    #video-container {
+       width: 100%;
+       height: 300px; 
+       background-color: #ff9800;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       overflow: hidden;
+       border-radius: 8px;
     }
-    .key-container {
+    #video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* --- KEYBOARD STYLES --- */
+    #main-container {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    #keyboard-controls {
         display: flex;
-        flex-wrap: wrap;
         justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    #keyboard {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(15, 1fr);
         gap: 5px;
-        margin-top: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        overflow-x: auto; 
     }
-    .key-row {
-      display: flex;
+    .key {
+        min-width: 30px; 
+        height: 50px;
+        background-color: var(--evergreen);
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background-color 0.1s;
+        user-select: none;
+        color: white;
     }
-    .keyboard-key:hover {
-    background-color: #e0e0e0;
+    .key.pressed { background-color: #81c784; color: black; border-color: #1b5e20; } 
+    .key.released { background-color: #ff9800; }
+    .wide { grid-column: span 2; }
+    .extra-wide { grid-column: span 5; }
+    .symbol { font-size: 18px; }
+
+    /* --- DISPLAY TEST OVERLAY --- */
+    #display-overlay {
+        display: none; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        z-index: 9999; 
+    }
+
+    #display-controls-popup {
+        position: absolute;
+        /* Default Position: Bottom Left */
+        bottom: 20px;
+        left: 20px;
+        
+        background-color: rgba(0, 0, 0, 0.85);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        min-width: 200px;
+        transition: all 0.3s ease; /* Smooth movement */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Position Classes for Toggle */
+    .pos-bottom-left { bottom: 20px; left: 20px; right: auto; top: auto; }
+    .pos-bottom-right { bottom: 20px; right: 20px; left: auto; top: auto; }
+
+    #display-controls-popup p { margin: 0 0 5px 0; font-size: 18px; font-weight: bold; }
+    
+    .popup-btn-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    #display-controls-popup button {
+        margin: 0;
+        flex: 1;
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    #btn-close-display { background-color: #d32f2f; } 
+    #btn-close-display:hover { background-color: #b71c1c; }
+    #btn-next-display { background-color: #1976D2; } 
+    #btn-next-display:hover { background-color: #0D47A1; }
+    #btn-move-display { background-color: #555; width: 100%; margin-top: 5px;}
+    #btn-move-display:hover { background-color: #333; }
+
   </style>
 </head>
-<body style="margin-right: 10px;" >
-<div>
-  <div class="warning" style="margin-bottom: 0px;">
-    <p>Device Testing 1.20</p>
+<body>
 
+  <div class="warning" style="margin-bottom: 0px;">
+    <p>Device Test 2.1</p>
   </div>
-  
   
   <div id="mainDiv">
   
-    <!-- Audio/Mic Test Section -->
-    <div class="box" style="margin-top: 20px;" >
+    <div class="box">
       <div class="warning">Audio / Microphone Test</div>
-      <div>
-        <button class="left">&#9664;</button>
-        <button class="play">&#9664; &#9654;</button>
-        <button class="right" style="height: 43px;" >&#9654;</button>
+      
+      <div class="audio-controls" style="width: 100%;">
+        <div class="audio-row">
+            <button class="left">&#9664;</button>
+            <button class="play">&#9664; &#9654;</button>
+            <button class="right">&#9654;</button>
+        </div>
+        <div class="audio-row">
+            <button class="left2">&#9664;</button>
+            <button class="play2">&#9664; &#9654;</button>
+            <button class="right2">&#9654;</button>
+        </div>
+        <div class="audio-row">
+            <button class="left3">&#9664;</button>
+            <button class="play3">&#9664; &#9654;</button>
+            <button class="right3">&#9654;</button>
+        </div>
       </div>
-      <div style="color: red;">
-        <button class="left2">&#9664;</button>
-        <button class="play2">&#9664; &#9654;</button>
-        <button class="right2" style="height: 43px;" >&#9654;</button>
-      </div>
-      <div style="color: blue;">
-        <button class="left3" >&#9664;</button>
-        <button class="play3">&#9664; &#9654;</button>
-        <button class="right3" style="height: 43px;">&#9654;</button>
-      </div>
+
       <div id="visualizer"></div>
-     
-
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-    <div style="flex: 1; margin-right: 10px;">
-      <select id="micSource"> </select>  
+      
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 10px;">
+        <div class="select-wrapper" style="flex: 1; margin-right: 10px; margin-top: 0;">
+          <select id="micSource"> </select>  
+        </div>
+        <button id="toggleButton" style="flex-shrink: 0; margin-top:0;">Pause/Start Mic</button>
+      </div>
+      <div class="warning" style="background-color: #ff9800; color: black; font-size: 14px; margin-top: 10px;">Audio Will Only Work if Mic is Paused</div>
     </div>
-        <button id="toggleButton" style="flex-shrink: 0; max-width: 200px;" >Pause/Start Mic</button>
-</div>
-      <div class="warning" style="background-color: orange; font-size: 14px; margin-top: 10px;">Audio Will Only Work if Mic is Paused</div>
-    </div>
 
-    <style>
-      /* Audio/Mic Test Section CSS */
-      #visualizer {
-        width: 320px;
-        height: 120px;
-        background-color: orange;
-        border-radius: 4px;
-        position: relative;
-      }
-      #visualizer canvas {
-        width: 100%;
-        height: 100%;
-        border-radius: 4px;
-      }
-      .warning {
-        background-color: green;
-        width: 100%;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        color: white;
-        text-align: center;
-        font-weight: bold;
-        border-radius: 4px;
-      }
-      #micSource {
-        margin-right: 10px;
-      }
-      button, select {
-        min-width: 100px;
-      }
-      #toggleButton {
-        min-width: 200px;
-      }
-    </style>
-
-    <script>
-      // Audio/Mic Test Section Script
-      const visualizer = document.getElementById('visualizer');
-      const canvas = document.createElement('canvas');
-      canvas.width = visualizer.clientWidth;
-      canvas.height = visualizer.clientHeight;
-      visualizer.appendChild(canvas);
-      const canvasCtx = canvas.getContext('2d');
-
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      let audioContext;
-      let mediaStream;
-      let analyser;
-      let animationFrameId;
-      let micActive = false;
-      let audioActive = true;
-
-      const micSourceSelect = document.getElementById('micSource');
-      const toggleButton = document.getElementById('toggleButton');
-
-      // Populate mic sources
-      navigator.mediaDevices.enumerateDevices()
-        .then(devices => {
-          devices.forEach(device => {
-            if (device.kind === 'audioinput') {
-              const option = document.createElement('option');
-              option.value = device.deviceId;
-              option.text = device.label || `Microphone ${micSourceSelect.length + 1}`;
-              micSourceSelect.appendChild(option);
-            }
-          });
-        });
-
-      function startAudioContext() {
-        if (!audioContext && micActive) {
-          audioContext = new AudioContext();
-          navigator.mediaDevices.getUserMedia({ 
-            audio: {
-              deviceId: micSourceSelect.value ? {exact: micSourceSelect.value} : undefined
-            }
-          })
-            .then(function(stream) {
-              mediaStream = stream;
-              const source = audioContext.createMediaStreamSource(stream);
-              analyser = audioContext.createAnalyser();
-              source.connect(analyser);
-
-              analyser.fftSize = 256;
-              const bufferLength = analyser.frequencyBinCount;
-              const dataArray = new Uint8Array(bufferLength);
-
-              canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-              function draw() {
-                const WIDTH = canvas.width;
-                const HEIGHT = canvas.height;
-
-                animationFrameId = requestAnimationFrame(draw);
-
-                analyser.getByteFrequencyData(dataArray);
-
-                canvasCtx.fillStyle = 'orange';
-                canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-
-                const barWidth = (WIDTH / bufferLength) * 2.5;
-                let x = 0;
-
-                for (let i = 0; i < bufferLength; i++) {
-                  const barHeight = dataArray[i];
-
-                  canvasCtx.fillStyle = `#45a049`;
-                  canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
-
-                  x += barWidth + 1;
-                }
-              }
-
-              draw();
-            })
-            .catch(function(err) {
-              console.error('Error accessing microphone:', err);
-            });
-        }
-      }
-
-      function stopAudioContext() {
-        if (audioContext) {
-          audioContext.close();
-          audioContext = null;
-          if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-          }
-          cancelAnimationFrame(animationFrameId);
-          canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-      }
-
-      function toggleAudioMic() {
-        if (micActive) {
-          micActive = false;
-          audioActive = true;
-          toggleButton.textContent = "Pause / Start Mic";
-          stopAudioContext();
-        } else {
-          micActive = true;
-          audioActive = false;
-          toggleButton.textContent = "Stop Mic ";
-          pauseAllAudio();
-          startAudioContext();
-        }
-      }
-
-      const leftAudio = new Audio('AudioLeft.mp3');
-      const rightAudio = new Audio('AudioRight.mp3');
-      const playAudio = new Audio('Audio.mp3');
-
-      const leftAudio2 = new Audio('Audio2Left.mp3');
-      const rightAudio2 = new Audio('Audio2Right.mp3');
-      const playAudio2 = new Audio('Audio2.mp3');
-
-      const leftAudio3 = new Audio('Audio3Left.mp3');
-      const rightAudio3 = new Audio('Audio3Right.mp3');
-      const playAudio3 = new Audio('Audio3.mp3');
-
-      function pauseAllAudio() {
-        leftAudio.pause();
-        leftAudio.currentTime = 0;
-        rightAudio.pause();
-        rightAudio.currentTime = 0;
-        playAudio.pause();
-        playAudio.currentTime = 0;
-
-        leftAudio2.pause();
-        leftAudio2.currentTime = 0;
-        rightAudio2.pause();
-        rightAudio2.currentTime = 0;
-        playAudio2.pause();
-        playAudio2.currentTime = 0;
-
-        leftAudio3.pause();
-        leftAudio3.currentTime = 0;
-        rightAudio3.pause();
-        rightAudio3.currentTime = 0;
-        playAudio3.pause();
-        playAudio3.currentTime = 0;
+    <div class="box">
+        <div class="warning">Camera / Display Test</div>
+        <div id="video-container">
+            <video id="video" autoplay playsinline></video>
+        </div>
         
-      }
-
-      document.querySelectorAll('.left').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            leftAudio.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.right').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            rightAudio.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.play').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            playAudio.play();
-          }
-        });
-      });
-
-      //2
-
-      document.querySelectorAll('.left2').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            leftAudio2.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.right2').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            rightAudio2.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.play2').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            playAudio2.play();
-          }
-        });
-      });
-
-      //3
-
-      document.querySelectorAll('.left3').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            leftAudio3.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.right3').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            rightAudio3.play();
-          }
-        });
-      });
-
-      document.querySelectorAll('.play3').forEach(button => {
-        button.addEventListener('click', () => {
-          if (audioActive) {
-            pauseAllAudio();
-            playAudio3.play();
-          }
-        });
-      });
-
-      //
-
-      toggleButton.addEventListener('click', toggleAudioMic);
-      micSourceSelect.addEventListener('change', () => {
-        if (micActive) {
-          stopAudioContext();
-          startAudioContext();
-        }
-      });
-    </script>
-<div id="mainDiv">
-  <!--cameratest-->
-  <div class="box" style="height: 500px; margin-top: 20px;">
-    <div class="warning">Camera Test</div>
-    <div id="video-container">
-      <video id="video" autoplay playsinline></video>
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <button id="switch-button" style="flex: 1;">Switch Camera</button>
+            <button id="start-display-test" onclick="startDisplayTest()" style="flex: 1; background-color: #1976D2;">Start Display Test</button>
+        </div>
     </div>
-    <button id="switch-button">Switch Camera</button>
 
-    <style>
-      .box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px;
-      }
-      .warning {
-        background-color: green;
-        width: 100%;
-        padding: 10px;
-        color: white;
-        text-align: center;
-        font-weight: bold;
-        border-radius: 4px;
-        margin-bottom: 20px;
-      }
-      #video-container {
-        width: 400px;
-        height: 400px;
-        background-color: orange;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        border-radius: 8px;
-      }
-      #video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      #switch-button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-    </style>
-
-    <script>
-      const video = document.getElementById('video');
-      const switchButton = document.getElementById('switch-button');
-      let currentFacingMode = 'user'; // Start with front camera
-
-      function startCamera(facingMode) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
-          .then(stream => {
-            video.srcObject = stream;
-            video.style.display = 'block';
-          })
-          .catch(error => {
-            console.error('Error accessing camera:', error);
-            video.style.display = 'none';
-          });
-      }
-
-      switchButton.addEventListener('click', () => {
-        // Stop the current stream
-        const stream = video.srcObject;
-        if (stream) {
-          const tracks = stream.getTracks();
-          tracks.forEach(track => track.stop());
-        }
-        // Toggle the camera facing mode
-        currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-        startCamera(currentFacingMode);
-      });
-
-      // Start the camera initially
-      startCamera(currentFacingMode);
-    </script>
   </div>
-</div>
 
-<div id="mainDiv">
+  <div id="main-container">
+    <div class="warning" style="max-width: 1000px; margin: 0 auto 10px auto;">Keyboard Test</div>
+    
+    <div id="keyboard-controls">
+        <button onclick="setKeyboard('macEn')" id="btn-macEn">Mac En</button>
+        
+        <button onclick="setKeyboard('win')" id="btn-win">Windows</button>
+    </div>
 
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #keyboard {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(15, 1fr);
-            gap: 5px;
-            max-width: 1000px;
-        }
-        .key {
-            width: 50px;
-            height: 50px;
-            background-color: Green;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .key.pressed {
-            background-color: #90EE90;
-        }
-        .key.released {
-            background-color: Orange;
-        }
-        .wide {
-            grid-column: span 2;
-            width: 105px;
-        }
-        .extra-wide {
-            grid-column: span 5;
-            width: 265px;
-        }
-        .arrow-keys {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 5px;
-            grid-column: span 3;
-        }
-        .arrow-key {
-            font-size: 20px;
-        }
-        .symbol {
-            font-size: 18px;
-        }
-        .placeholder {
-            visibility: hidden;
-        }
-    </style>
-</head>
-<body>
     <div id="keyboard"></div>
+  </div>
 
-    <script>
-        const keyLayout = [
-            [
-                { code: 'Escape', label: 'esc' },
-                { code: 'F1', label: 'F1' },
-                { code: 'F2', label: 'F2' },
-                { code: 'F3', label: 'F3' },
-                { code: 'F4', label: 'F4' },
-                { code: 'F5', label: 'F5' },
-                { code: 'F6', label: 'F6' },
-                { code: 'F7', label: 'F7' },
-                { code: 'F8', label: 'F8' },
-                { code: 'F9', label: 'F9' },
-                { code: 'F10', label: 'F10' },
-                { code: 'F11', label: 'F11' },
-                { code: 'F12', label: 'F12' },
-                { code: 'Insert', label: 'ins' },
-                { code: 'Delete', label: 'del' }
-            ],
-            [
-                { code: 'Backquote', label: '`' },
-                { code: 'Digit1', label: '1' },
-                { code: 'Digit2', label: '2' },
-                { code: 'Digit3', label: '3' },
-                { code: 'Digit4', label: '4' },
-                { code: 'Digit5', label: '5' },
-                { code: 'Digit6', label: '6' },
-                { code: 'Digit7', label: '7' },
-                { code: 'Digit8', label: '8' },
-                { code: 'Digit9', label: '9' },
-                { code: 'Digit0', label: '0' },
-                { code: 'Minus', label: '-' },
-                { code: 'Equal', label: '=' },
-                { code: 'Backspace', label: 'delete', wide: true }
-            ],
-            [
-                { code: 'Tab', label: 'tab', wide: true },
-                { code: 'KeyQ', label: 'Q' },
-                { code: 'KeyW', label: 'W' },
-                { code: 'KeyE', label: 'E' },
-                { code: 'KeyR', label: 'R' },
-                { code: 'KeyT', label: 'T' },
-                { code: 'KeyY', label: 'Y' },
-                { code: 'KeyU', label: 'U' },
-                { code: 'KeyI', label: 'I' },
-                { code: 'KeyO', label: 'O' },
-                { code: 'KeyP', label: 'P' },
-                { code: 'BracketLeft', label: '[' },
-                { code: 'BracketRight', label: ']' },
-                { code: 'Backslash', label: '\\' }
-            ],
-            [
-                { code: 'CapsLock', label: 'caps lock', wide: true },
-                { code: 'KeyA', label: 'A' },
-                { code: 'KeyS', label: 'S' },
-                { code: 'KeyD', label: 'D' },
-                { code: 'KeyF', label: 'F' },
-                { code: 'KeyG', label: 'G' },
-                { code: 'KeyH', label: 'H' },
-                { code: 'KeyJ', label: 'J' },
-                { code: 'KeyK', label: 'K' },
-                { code: 'KeyL', label: 'L' },
-                { code: 'Semicolon', label: ';' },
-                { code: 'Quote', label: "'" },
-                { code: 'Enter', label: 'return', wide: true }
-            ],
-            [
-                { code: 'ShiftLeft', label: 'shift', wide: true },
-                { code: 'KeyZ', label: 'Z' },
-                { code: 'KeyX', label: 'X' },
-                { code: 'KeyC', label: 'C' },
-                { code: 'KeyV', label: 'V' },
-                { code: 'KeyB', label: 'B' },
-                { code: 'KeyN', label: 'N' },
-                { code: 'KeyM', label: 'M' },
-                { code: 'Comma', label: ',' },
-                { code: 'Period', label: '.' },
-                { code: 'ArrowUp', label: '▲', className: 'arrow-key' },
-                { code: 'Slash', label: '/' },
-                { code: 'ShiftRight', label: 'shift', wide: true }
-            ],
-            [
-                //{ code: 'ControlLeft', label: '⌃', className: 'symbol' },
-                { code: 'ControlLeft', label: '⌃', className: 'symbol' },
-                { code: 'AltLeft', label: '⌥', className: 'symbol' },
-                { code: 'MetaLeft', label: '⌘', className: 'symbol' },
-                { code: 'Space', label: 'space', extra_wide: true },
-                { code: 'MetaRight', label: '⌘', className: 'symbol' },
-                { code: 'AltRight', label: '⌥', className: 'symbol' },
-                { code: 'ArrowLeft', label: '◀', className: 'arrow-key' },
-{ code: 'ArrowDown', label: '▼', className: 'arrow-key' },
-{ code: 'ArrowRight', label: '▶', className: 'arrow-key' }
-            ]
-        ];
+  <div id="display-overlay">
+      <div id="display-controls-popup" class="pos-bottom-left">
+          <p>Display Test</p>
+          <div class="popup-btn-row">
+              <button id="btn-next-display" onclick="nextDisplayColor()">Next Color</button>
+              <button id="btn-close-display" onclick="closeDisplayTest()">Close</button>
+          </div>
+          <button id="btn-move-display" onclick="togglePopupPosition()">&#8644; Move Position</button>
+      </div>
+  </div>
 
+  <script>
+    // --- AUDIO & MIC LOGIC ---
+    const visualizer = document.getElementById('visualizer');
+    const canvas = document.createElement('canvas');
+    canvas.width = visualizer.clientWidth;
+    canvas.height = visualizer.clientHeight;
+    visualizer.appendChild(canvas);
+    const canvasCtx = canvas.getContext('2d');
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioContext;
+    let mediaStream;
+    let analyser;
+    let animationFrameId;
+    let micActive = false;
+    let audioActive = true;
+
+    const micSourceSelect = document.getElementById('micSource');
+    const toggleButton = document.getElementById('toggleButton');
+
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+        devices.forEach(device => {
+          if (device.kind === 'audioinput') {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `Microphone ${micSourceSelect.length + 1}`;
+            micSourceSelect.appendChild(option);
+          }
+        });
+    });
+
+    function startAudioContext() {
+      if (!audioContext && micActive) {
+        audioContext = new AudioContext();
+        navigator.mediaDevices.getUserMedia({ audio: { deviceId: micSourceSelect.value ? {exact: micSourceSelect.value} : undefined } })
+          .then(function(stream) {
+            mediaStream = stream;
+            const source = audioContext.createMediaStreamSource(stream);
+            analyser = audioContext.createAnalyser();
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            function draw() {
+              const WIDTH = canvas.width;
+              const HEIGHT = canvas.height;
+              animationFrameId = requestAnimationFrame(draw);
+              analyser.getByteFrequencyData(dataArray);
+              canvasCtx.fillStyle = '#333';
+              canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+              const barWidth = (WIDTH / bufferLength) * 2.5;
+              let x = 0;
+              for (let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i];
+                canvasCtx.fillStyle = `#66bb6a`; // Lighter green for bars
+                canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+                x += barWidth + 1;
+              }
+            }
+            draw();
+          })
+          .catch(err => console.error('Mic Error:', err));
+      }
+    }
+
+    function stopAudioContext() {
+      if (audioContext) {
+        audioContext.close(); audioContext = null;
+        if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+        cancelAnimationFrame(animationFrameId);
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function toggleAudioMic() {
+      if (micActive) {
+        micActive = false; audioActive = true;
+        toggleButton.textContent = "Pause / Start Mic";
+        stopAudioContext();
+      } else {
+        micActive = true; audioActive = false;
+        toggleButton.textContent = "Stop Mic ";
+        pauseAllAudio();
+        startAudioContext();
+      }
+    }
+
+    // Audio Files
+    const leftAudio = new Audio('AudioLeft.mp3');
+    const rightAudio = new Audio('AudioRight.mp3');
+    const playAudio = new Audio('Audio.mp3');
+    const leftAudio2 = new Audio('Audio2Left.mp3');
+    const rightAudio2 = new Audio('Audio2Right.mp3');
+    const playAudio2 = new Audio('Audio2.mp3');
+    const leftAudio3 = new Audio('Audio3Left.mp3');
+    const rightAudio3 = new Audio('Audio3Right.mp3');
+    const playAudio3 = new Audio('Audio3.mp3');
+
+    function pauseAllAudio() {
+      [leftAudio, rightAudio, playAudio, leftAudio2, rightAudio2, playAudio2, leftAudio3, rightAudio3, playAudio3]
+      .forEach(a => { a.pause(); a.currentTime = 0; });
+    }
+
+    document.querySelectorAll('.left').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); leftAudio.play(); }}));
+    document.querySelectorAll('.right').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); rightAudio.play(); }}));
+    document.querySelectorAll('.play').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); playAudio.play(); }}));
+    document.querySelectorAll('.left2').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); leftAudio2.play(); }}));
+    document.querySelectorAll('.right2').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); rightAudio2.play(); }}));
+    document.querySelectorAll('.play2').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); playAudio2.play(); }}));
+    document.querySelectorAll('.left3').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); leftAudio3.play(); }}));
+    document.querySelectorAll('.right3').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); rightAudio3.play(); }}));
+    document.querySelectorAll('.play3').forEach(b => b.addEventListener('click', () => { if(audioActive){ pauseAllAudio(); playAudio3.play(); }}));
+
+    toggleButton.addEventListener('click', toggleAudioMic);
+    micSourceSelect.addEventListener('change', () => { if (micActive) { stopAudioContext(); startAudioContext(); } });
+
+    // --- CAMERA LOGIC ---
+    const video = document.getElementById('video');
+    const switchButton = document.getElementById('switch-button');
+    let currentFacingMode = 'user';
+
+    function startCamera(facingMode) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
+        .then(stream => { video.srcObject = stream; video.style.display = 'block'; })
+        .catch(error => { console.error('Camera Error:', error); video.style.display = 'none'; });
+    }
+
+    switchButton.addEventListener('click', () => {
+      const stream = video.srcObject;
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+      startCamera(currentFacingMode);
+    });
+    startCamera(currentFacingMode);
+
+    // --- DISPLAY TEST LOGIC ---
+    const displayOverlay = document.getElementById('display-overlay');
+    const displayPopup = document.getElementById('display-controls-popup');
+    const displayColors = ['white', 'red', '#00ff00', 'blue', 'black', 'linear-gradient(to right, black, white)'];
+    let currentColorIndex = 0;
+    let isLeftPosition = true;
+
+    function startDisplayTest() {
+        currentColorIndex = 0;
+        updateDisplayColor();
+        displayOverlay.style.display = 'block'; // Change to block to allow full positioning
+        if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e)=>{}); }
+    }
+
+    function updateDisplayColor() {
+        displayOverlay.style.background = displayColors[currentColorIndex];
+    }
+
+    function nextDisplayColor() {
+        currentColorIndex++;
+        if (currentColorIndex >= displayColors.length) currentColorIndex = 0;
+        updateDisplayColor();
+    }
+
+    function closeDisplayTest() {
+        displayOverlay.style.display = 'none';
+        if (document.exitFullscreen) { document.exitFullscreen().catch((e)=>{}); }
+    }
+    
+    function togglePopupPosition() {
+        isLeftPosition = !isLeftPosition;
+        if (isLeftPosition) {
+            displayPopup.classList.remove('pos-bottom-right');
+            displayPopup.classList.add('pos-bottom-left');
+        } else {
+            displayPopup.classList.remove('pos-bottom-left');
+            displayPopup.classList.add('pos-bottom-right');
+        }
+    }
+
+    // --- KEYBOARD LOGIC ---
+    const layouts = {
+        macEn: [
+            [{ code: 'Escape', label: 'esc' }, { code: 'F1', label: 'F1' }, { code: 'F2', label: 'F2' }, { code: 'F3', label: 'F3' }, { code: 'F4', label: 'F4' }, { code: 'F5', label: 'F5' }, { code: 'F6', label: 'F6' }, { code: 'F7', label: 'F7' }, { code: 'F8', label: 'F8' }, { code: 'F9', label: 'F9' }, { code: 'F10', label: 'F10' }, { code: 'F11', label: 'F11' }, { code: 'F12', label: 'F12' }, { code: 'Power', label: '⏻', wide: true }],
+            [{ code: 'Backquote', label: '`' }, { code: 'Digit1', label: '1' }, { code: 'Digit2', label: '2' }, { code: 'Digit3', label: '3' }, { code: 'Digit4', label: '4' }, { code: 'Digit5', label: '5' }, { code: 'Digit6', label: '6' }, { code: 'Digit7', label: '7' }, { code: 'Digit8', label: '8' }, { code: 'Digit9', label: '9' }, { code: 'Digit0', label: '0' }, { code: 'Minus', label: '-' }, { code: 'Equal', label: '=' }, { code: 'Backspace', label: 'delete', wide: true }],
+            [{ code: 'Tab', label: 'tab', wide: true }, { code: 'KeyQ', label: 'Q' }, { code: 'KeyW', label: 'W' }, { code: 'KeyE', label: 'E' }, { code: 'KeyR', label: 'R' }, { code: 'KeyT', label: 'T' }, { code: 'KeyY', label: 'Y' }, { code: 'KeyU', label: 'U' }, { code: 'KeyI', label: 'I' }, { code: 'KeyO', label: 'O' }, { code: 'KeyP', label: 'P' }, { code: 'BracketLeft', label: '[' }, { code: 'BracketRight', label: ']' }, { code: 'Backslash', label: '\\' }],
+            [{ code: 'CapsLock', label: 'caps lock', wide: true }, { code: 'KeyA', label: 'A' }, { code: 'KeyS', label: 'S' }, { code: 'KeyD', label: 'D' }, { code: 'KeyF', label: 'F' }, { code: 'KeyG', label: 'G' }, { code: 'KeyH', label: 'H' }, { code: 'KeyJ', label: 'J' }, { code: 'KeyK', label: 'K' }, { code: 'KeyL', label: 'L' }, { code: 'Semicolon', label: ';' }, { code: 'Quote', label: "'" }, { code: 'Enter', label: 'return', wide: true }],
+            [{ code: 'ShiftLeft', label: 'shift', wide: true }, { code: 'KeyZ', label: 'Z' }, { code: 'KeyX', label: 'X' }, { code: 'KeyC', label: 'C' }, { code: 'KeyV', label: 'V' }, { code: 'KeyB', label: 'B' }, { code: 'KeyN', label: 'N' }, { code: 'KeyM', label: 'M' }, { code: 'Comma', label: ',' }, { code: 'Period', label: '.' }, { code: 'ArrowUp', label: '▲' }, { code: 'Slash', label: '/' }, { code: 'ShiftRight', label: 'shift', wide: true }],
+            [{ code: 'ControlLeft', label: '⌃', className: 'symbol' }, { code: 'AltLeft', label: '⌥', className: 'symbol' }, { code: 'MetaLeft', label: '⌘', className: 'symbol' }, { code: 'Space', label: 'space', extra_wide: true }, { code: 'MetaRight', label: '⌘', className: 'symbol' }, { code: 'AltRight', label: '⌥', className: 'symbol' }, { code: 'ArrowLeft', label: '◀' }, { code: 'ArrowDown', label: '▼' }, { code: 'ArrowRight', label: '▶' }]
+        ],
+        //macFr: [
+            //[{ code: 'Escape', label: 'esc' }, { code: 'F1', label: 'F1' }, { code: 'F2', label: 'F2' }, { code: 'F3', label: 'F3' }, { code: 'F4', label: 'F4' }, { code: 'F5', label: 'F5' }, { code: 'F6', label: 'F6' }, { code: 'F7', label: 'F7' }, { code: 'F8', label: 'F8' }, { code: 'F9', label: 'F9' }, { code: 'F10', label: 'F10' }, { code: 'F11', label: 'F11' }, { code: 'F12', label: 'F12' }, { code: 'Insert', label: 'ins' }, { code: 'Delete', label: 'del' }],
+           // [{ code: 'Backquote', label: '@' }, { code: 'Digit1', label: '&' }, { code: 'Digit2', label: 'é' }, { code: 'Digit3', label: '"' }, { code: 'Digit4', label: "'" }, { code: 'Digit5', label: '(' }, { code: 'Digit6', label: '§' }, { code: 'Digit7', label: 'è' }, { code: 'Digit8', label: '!' }, { code: 'Digit9', label: 'ç' }, { code: 'Digit0', label: 'à' }, { code: 'Minus', label: ')' }, { code: 'Equal', label: '-' }, { code: 'Backspace', label: 'delete', wide: true }],
+            //[{ code: 'Tab', label: 'tab', wide: true }, { code: 'KeyQ', label: 'A' }, { code: 'KeyW', label: 'Z' }, { code: 'KeyE', label: 'E' }, { code: 'KeyR', label: 'R' }, { code: 'KeyT', label: 'T' }, { code: 'KeyY', label: 'Y' }, { code: 'KeyU', label: 'U' }, { code: 'KeyI', label: 'I' }, { code: 'KeyO', label: 'O' }, { code: 'KeyP', label: 'P' }, { code: 'BracketLeft', label: '^' }, { code: 'BracketRight', label: '$' }, { code: 'Backslash', label: '`' }],
+            //[{ code: 'CapsLock', label: 'caps lock', wide: true }, { code: 'KeyA', label: 'Q' }, { code: 'KeyS', label: 'S' }, { code: 'KeyD', label: 'D' }, { code: 'KeyF', label: 'F' }, { code: 'KeyG', label: 'G' }, { code: 'KeyH', label: 'H' }, { code: 'KeyJ', label: 'J' }, { code: 'KeyK', label: 'K' }, { code: 'KeyL', label: 'L' }, { code: 'Semicolon', label: 'M' }, { code: 'Quote', label: 'ù' }, { code: 'Enter', label: 'return', wide: true }],
+            //[{ code: 'ShiftLeft', label: 'shift', wide: true }, { code: 'KeyZ', label: 'W' }, { code: 'KeyX', label: 'X' }, { code: 'KeyC', label: 'C' }, { code: 'KeyV', label: 'V' }, { code: 'KeyB', label: 'B' }, { code: 'KeyN', label: 'N' }, { code: 'KeyM', label: ',' }, { code: 'Comma', label: ';' }, { code: 'Period', label: ':' }, { code: 'ArrowUp', label: '▲' }, { code: 'Slash', label: '!' }, { code: 'ShiftRight', label: 'shift', wide: true }],
+            //[{ code: 'ControlLeft', label: '⌃', className: 'symbol' }, { code: 'AltLeft', label: '⌥', className: 'symbol' }, { code: 'MetaLeft', label: '⌘', className: 'symbol' }, { code: 'Space', label: 'space', extra_wide: true }, { code: 'MetaRight', label: '⌘', className: 'symbol' }, { code: 'AltRight', label: '⌥', className: 'symbol' }, { code: 'ArrowLeft', label: '◀' }, { code: 'ArrowDown', label: '▼' }, { code: 'ArrowRight', label: '▶' }]
+        //],
+        win: [
+             [{ code: 'Escape', label: 'Esc' }, { code: 'F1', label: 'F1' }, { code: 'F2', label: 'F2' }, { code: 'F3', label: 'F3' }, { code: 'F4', label: 'F4' }, { code: 'F5', label: 'F5' }, { code: 'F6', label: 'F6' }, { code: 'F7', label: 'F7' }, { code: 'F8', label: 'F8' }, { code: 'F9', label: 'F9' }, { code: 'F10', label: 'F10' }, { code: 'F11', label: 'F11' }, { code: 'F12', label: 'F12' }, { code: 'Spacer', label: '', wide: true, className: 'released' }],
+            [{ code: 'Backquote', label: '`' }, { code: 'Digit1', label: '1' }, { code: 'Digit2', label: '2' }, { code: 'Digit3', label: '3' }, { code: 'Digit4', label: '4' }, { code: 'Digit5', label: '5' }, { code: 'Digit6', label: '6' }, { code: 'Digit7', label: '7' }, { code: 'Digit8', label: '8' }, { code: 'Digit9', label: '9' }, { code: 'Digit0', label: '0' }, { code: 'Minus', label: '-' }, { code: 'Equal', label: '=' }, { code: 'Backspace', label: 'Back', wide: true }],
+            [{ code: 'Tab', label: 'Tab', wide: true }, { code: 'KeyQ', label: 'Q' }, { code: 'KeyW', label: 'W' }, { code: 'KeyE', label: 'E' }, { code: 'KeyR', label: 'R' }, { code: 'KeyT', label: 'T' }, { code: 'KeyY', label: 'Y' }, { code: 'KeyU', label: 'U' }, { code: 'KeyI', label: 'I' }, { code: 'KeyO', label: 'O' }, { code: 'KeyP', label: 'P' }, { code: 'BracketLeft', label: '[' }, { code: 'BracketRight', label: ']' }, { code: 'Backslash', label: '\\' }],
+            [{ code: 'CapsLock', label: 'Caps', wide: true }, { code: 'KeyA', label: 'A' }, { code: 'KeyS', label: 'S' }, { code: 'KeyD', label: 'D' }, { code: 'KeyF', label: 'F' }, { code: 'KeyG', label: 'G' }, { code: 'KeyH', label: 'H' }, { code: 'KeyJ', label: 'J' }, { code: 'KeyK', label: 'K' }, { code: 'KeyL', label: 'L' }, { code: 'Semicolon', label: ';' }, { code: 'Quote', label: "'" }, { code: 'Enter', label: 'Enter', wide: true }],
+            [{ code: 'ShiftLeft', label: 'Shift', wide: true }, { code: 'KeyZ', label: 'Z' }, { code: 'KeyX', label: 'X' }, { code: 'KeyC', label: 'C' }, { code: 'KeyV', label: 'V' }, { code: 'KeyB', label: 'B' }, { code: 'KeyN', label: 'N' }, { code: 'KeyM', label: 'M' }, { code: 'Comma', label: ',' }, { code: 'Period', label: '.' }, { code: 'ArrowUp', label: '▲' }, { code: 'Slash', label: '/' }, { code: 'ShiftRight', label: 'Shift', wide: true }],
+            [{ code: 'ControlLeft', label: 'Ctrl', className: 'symbol' }, { code: 'MetaLeft', label: 'Win', className: 'symbol' }, { code: 'AltLeft', label: 'Alt', className: 'symbol' }, { code: 'Space', label: 'Space', extra_wide: true }, { code: 'AltRight', label: 'Alt', className: 'symbol' }, { code: 'ControlRight', label: 'Ctrl', className: 'symbol' }, { code: 'ArrowLeft', label: '◀' }, { code: 'ArrowDown', label: '▼' }, { code: 'ArrowRight', label: '▶' }]
+        ]
+    };
+
+    function setKeyboard(type) {
         const keyboard = document.getElementById('keyboard');
+        keyboard.innerHTML = ''; 
+        
+        document.querySelectorAll('#keyboard-controls button').forEach(b => b.classList.remove('active-layout'));
+        document.getElementById(`btn-${type}`).classList.add('active-layout');
 
-        keyLayout.forEach(row => {
+        const layout = layouts[type];
+
+        layout.forEach(row => {
             row.forEach(key => {
-                if (key.className === 'arrow-keys') {
-                    const arrowKeysContainer = document.createElement('div');
-                    arrowKeysContainer.className = 'arrow-keys';
-                        
-
-                    // Add a placeholder for the top-left cell
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'key placeholder';
-                    arrowKeysContainer.appendChild(placeholder);
-
-                    arrowKeys.forEach(arrowKey => {
-                        const keyElement = document.createElement('div');
-                        keyElement.className = `key ${arrowKey.className}`;
-                        keyElement.textContent = arrowKey.label;
-                        keyElement.dataset.code = arrowKey.code;
-                        arrowKeysContainer.appendChild(keyElement);
-                    });
-
-                    keyboard.appendChild(arrowKeysContainer);
-                } else {
-                    const keyElement = document.createElement('div');
-                    keyElement.className = 'key';
-                    if (key.className) keyElement.classList.add(key.className);
-                    keyElement.textContent = key.label;
-                    keyElement.dataset.code = key.code;
-
-                    if (key.wide) keyElement.classList.add('wide');
-                    if (key.extra_wide) keyElement.classList.add('extra-wide');
-
-                    keyboard.appendChild(keyElement);
-                }
+                const keyElement = document.createElement('div');
+                keyElement.className = 'key';
+                if (key.className) keyElement.classList.add(key.className);
+                keyElement.textContent = key.label;
+                keyElement.dataset.code = key.code;
+                if (key.wide) keyElement.classList.add('wide');
+                if (key.extra_wide) keyElement.classList.add('extra-wide');
+                keyboard.appendChild(keyElement);
             });
         });
+    }
 
-        document.addEventListener('keydown', (event) => {
-            event.preventDefault();
-            const key = document.querySelector(`.key[data-code="${event.code}"]`);
-            if (key) {
-                key.classList.add('pressed');
-                key.classList.remove('released');
-            }
-        });
+    setKeyboard('macEn');
 
-        document.addEventListener('keyup', (event) => {
-            event.preventDefault();
-            const key = document.querySelector(`.key[data-code="${event.code}"]`);
-            if (key) {
-                key.classList.remove('pressed');
-                key.classList.add('released');
-            }
-        });
-    </script>
-</div>
-
- 
-  </div>
-</div>
+    document.addEventListener('keydown', (event) => {
+      event.preventDefault();
+      const key = document.querySelector(`.key[data-code="${event.code}"]`);
+      if (key) { key.classList.add('pressed'); key.classList.remove('released'); }
+    });
+    document.addEventListener('keyup', (event) => {
+      event.preventDefault();
+      const key = document.querySelector(`.key[data-code="${event.code}"]`);
+      if (key) { key.classList.remove('pressed'); key.classList.add('released'); }
+    });
+  </script>
 </body>
 </html>

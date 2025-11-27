@@ -256,7 +256,7 @@
     #btn-next-display { background-color: #1976D2; } 
     #btn-next-display:hover { background-color: #0D47A1; }
     #btn-move-display { background-color: #555; width: 100%; margin-top: 5px;}
-    #btn-move-display:hover { background-color: #333; }
+    #btn-move-display:hover { background-color: #ff9800; }
 
   </style>
 </head>
@@ -386,7 +386,7 @@
               const HEIGHT = canvas.height;
               animationFrameId = requestAnimationFrame(draw);
               analyser.getByteFrequencyData(dataArray);
-              canvasCtx.fillStyle = '#333';
+              canvasCtx.fillStyle = '#ff9800';
               canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
               const barWidth = (WIDTH / bufferLength) * 2.5;
               let x = 0;

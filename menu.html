@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Tri-fold Menu Generator</title>
+    <!-- Improved Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9e9e9;
+            height: 100vh;
+            overflow: hidden; /* Prevent body scroll, use panel scroll */
+        }
+        
+        /* Main Layout: Flex Container */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* LEFT COLUMN: Editing UI (33%) */
+        .editor-panel {
+            flex: 0 0 33%;
+            min-width: 340px;
+            background-color: white;
+            padding: 25px;
+            overflow-y: auto;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* RIGHT COLUMN: Preview UI (66%) */
+        .preview-panel {
+            flex: 1;
+            background-color: #525659; /* Acrobat Reader Dark Grey */
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* FORCE BLACK UTILITIES */
+        h2, h3, h4 {
+            margin-top: 0;
+            color: #000000 !important;
+        }
+        
+        .menu-section h2 {
+            border-bottom: 3px solid #000000 !important;
+            color: #000000 !important;
+        }
+        
+        .menu-section h2 span {
+            color: #000000 !important;
+        }
+
+        .price-header {
+            color: #000000 !important;
+            opacity: 1 !important;
+        }
+
+        .item-name {
+            color: #000000 !important;
+        }
+
+        .item-dots {
+            border-bottom: 3px dotted #000000 !important;
+            opacity: 1 !important;
+        }
+
+        .item-prices {
+            color: #000000 !important;
+        }
+
+        .item-description {
+            color: #000000 !important;
+        }
+
+        .qr-container {
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+        .qr-stars {
+            color: #000000 !important;
+        }
+        .qr-caption {
+            color: #000000 !important;
+        }
+        .qr-version {
+            color: #000000 !important;
+        }
+
+        /* Styles Structure */
+        h2 {
+            font-size: 24px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h3, h4 {
+            margin: 0 0 10px 0;
+        }
+
+        /* Input Styling */
+        #menu-input {
+            width: 100%;
+            height: 250px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            resize: vertical;
+            background-color: #fafafa;
+            color: #000;
+        }
+        #menu-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            background-color: #fff;
+        }
+
+        /* Preview Scaling Wrapper */
+        .preview-wrapper {
+            /* 33in width * 0.25 scale approx */
+            width: 8.25in; 
+            /* 25.5in height * 0.25 scale approx */
+            height: 6.375in; 
+            margin-bottom: 50px; /* Increased margin */
+            position: relative;
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            flex-shrink: 0; /* CRITICAL: Prevents overlapping/squashing */
+        }
+
+        .preview-label {
+            color: #eee;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: left;
+            width: 8.25in;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .preview-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 1px solid #eee;
+            width: 33in;
+            height: 25.5in;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            background-color: #fff;
+            /* Scale down to fit the view */
+            transform: scale(0.25);
+            transform-origin: top left;
+        }
+
+        /* Existing Menu Styling */
+        .menu-panel {
+            width: calc(33in / 3);
+            height: 25.5in;
+            padding: 0.9in;
+            box-sizing: border-box;
+            border-right: 1px dashed #e0e0e0;
+            overflow: hidden;
+            position: relative; 
+        }
+        .menu-panel:last-child {
+            border-right: none;
+        }
+        .menu-section {
+            margin-bottom: 45px;
+        }
+        .menu-section h2 {
+            border-bottom: 3px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            line-height: 1.2;
+        }
+        .price-header {
+            font-weight: normal;
+            white-space: nowrap;
+            font-size: 0.7em !important;
+            vertical-align: bottom;
+        }
+        .menu-item {
+            margin-bottom: 15px;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+        }
+        .item-name {
+            font-weight: bold;
+            margin-right: 5px; 
+        }
+        .item-dots {
+            flex-grow: 1;
+            border-bottom: 3px dotted #000;
+            margin: 0 10px;
+            position: relative;
+            top: -7px;
+        }
+        .item-prices {
+            white-space: nowrap;
+            font-weight: 600;
+            text-align: right;
+        }
+        .item-description {
+            font-style: italic;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+
+        /* QR Code Styling - Updated Layout */
+        .qr-container {
+            display: flex;
+            flex-direction: row; /* Side by side */
+            align-items: center;
+            justify-content: center;
+            margin: 50px auto 50px auto; /* 50px top AND bottom for symmetry */
+            border: 3px double #000; /* Elegant Double Border Black */
+            padding: 20px; 
+            border-radius: 8px;
+            width: fit-content;
+            min-width: 300px;
+            background: #fff;
+            gap: 20px;
+            position: relative; /* For version number positioning */
+        }
+        .qr-left {
+            flex-shrink: 0;
+        }
+        .qr-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100%;
+            flex-grow: 1;
+        }
+        .qr-stars {
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .qr-caption {
+            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .qr-version {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-sipze: 30px;
+            font-family: monospace;
+            opacity: 1;
+        }
+
+        /* Controls & Buttons */
+        button, input[type="file"] {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #43A047;
+        }
+        
+        .export-btn {
+            background-color: #ff9800;
+            font-size: 16px;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .export-btn:hover { background-color: #F57C00; }
+        
+        .email-btn {
+            background-color: #2196F3;
+            margin-top: 5px;
+        }
+        .email-btn:hover { background-color: #1976D2; }
+        
+        .clear-img-btn {
+            background-color: #e53935;
+            width: auto;
+            padding: 8px 15px;
+            margin-bottom: 0;
+        }
+        .clear-img-btn:hover { background-color: #c62828; }
+
+        input[type="file"] {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .options-group {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .form-row label {
+            flex: 1;
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
+        }
+        .form-row input[type="number"], 
+        .form-row input[type="text"], 
+        .form-row select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-row input[type="range"] {
+            flex: 1;
+            cursor: pointer;
+        }
+        .form-row input[type="color"] {
+            width: 50px;
+            height: 35px;
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        /* Section Manager */
+        #reorder-container {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        #reorder-container h3 {
+             font-size: 18px; 
+             color: #2c3e50;
+        }
+        #section-list {
+            flex-grow: 1;
+        }
+        .section-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px; 
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            margin-bottom: 6px;
+            font-size: 15px;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .section-item:hover {
+            background: #f0f0f0;
+        }
+        .section-controls button {
+            width: 30px;
+            height: 26px;
+            padding: 0;
+            margin: 0 2px;
+            background-color: #78909c;
+            font-size: 14px;
+            line-height: 1;
+            border-radius: 3px;
+        }
+        .section-controls button:hover {
+            background-color: #546e7a;
+        }
+        .section-controls button:disabled {
+            background-color: #cfd8dc;
+            cursor: not-allowed;
+        }
+
+        /* Checkbox styling */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #000;
+            font-weight: 500;
+        }
+        .checkbox-container input {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: #2e7d32;
+        }
+        .checkbox-container:hover {
+            background: #f0f0f0;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff9800;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 20px;">Generating High-Res PDF...</div>
+        <div style="font-size: 14px; color: #ccc;">Please wait</div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- LEFT COLUMN: EDITING -->
+        <div class="editor-panel">
+            <h2>Menu Editor</h2>
+            
+            <div id="reorder-container">
+                <h3>Section Manager</h3>
+                <div id="section-list"></div>
+            </div>
+
+            <div class="options-group">
+                <label style="font-weight:bold; display:block; margin-bottom:10px; color:#444;">Raw Menu Content</label>
+                <textarea id="menu-input" placeholder="Enter menu items here..." oninput="generateMenu()"><<STARTERS>>
+< Veg Soup / Manchow Soup with Noodles, , $6.99>
+<Chicken Soup,, $7.99>
+<Veg Pakora,, $7.50,$10.99>
+<Gobi Pakora,, $8.50,$11.99>
+<Paneer Pakora,, $10.99,$14.99>
+<Chicken Pakora,, $10.99,$15.99>
+<Fish Pakora, , $10.99,$15.99>
+<Prawn Pakora,, $14.99,$21.99>
+<Veggie Spring Roll (10 pc), , $8.99>
+<Veg Samosa 1pc / Allo Tikki 1pc, , $1.25>
+<Chana Samosa (2pc) , , $6.99,$9.99>
+<Aloo Tikki with Chana (2pc), , $6.99,$9.99>
+<Veg Mix Platter, 2pc samosa 2pc tikki  3pc paneer pakora 4 pc spring roll and veg pakora, $12.99>
+<Chat Papri, Crunchy wafers topped with tangy tamarind chutney yogurt and spices, $6.99,$9.99>
+<Noodle burger with Coke and Fries, Crispy noodle tikki with fresh lettuce melted cheese and soft bread, $9.99>
+<Chicken Burger with coke and fries, Grilled chicken patty with fresh lettuce melted cheese and soft bread., $11.99>
+<Veg Noodles, Stir-fried noodles tossed with fresh vegetables and savory sauces, $13.99>
+<Chicken Noodles, Stir-fried noodles with tender chicken and mixed vegetables in a sauce, $16.99>
+<Veg Wrap, Soft flatbread filled with fresh veggies herbs and tangy sauce, $7.99>
+<Chicken Wrap, Soft flatbread loaded with spiced chicken veggies and creamy sauce, $9.99>
+<Veg Butter Pasta, Pasta tossed in creamy butter sauce with vegetables and mild spices, $12.99>
+<Chicken Pasta, Pasta roasted with garlic capsicum onion butter sauce and chicken, $16.99>
+<Royal Veg Soya Chap, Cream chilli butter mint, $14.99>
+<Veg Manchurian (Dry / Gravy), Deep fried mixed vegetables dumpling coated in soya sauce and spices, $12.99,$15.99>
+<Crispy Manchurian Gobi, Golden-fried cauliflower in spicy Manchurian glaze, $14.99>
+<Pav Bhaji, Mashed spicy vegetable curry served with buttered bread rolls, $10.99>
+<Papadam (2pc), Crispy lentil wafers, $1.99>
+<Fries, , $6.99>
+<Chicken Wings, , $12.99>
+
+<<THALI,-,-,>>
+<Veg Thali,2 Dishes/2pc Naan or Roti/Rice/Gulab Jamun/ Achar/Raita, ,13.99>
+<Non Veg Thali,2 Dishes/ 2pc Naan or Roti/Rice/Gulab Jamun/ Achar/Raita,16.99>
+<Chana Bhatura / Puri,Chickpeas/2 fluffy fried bread/Gulab Jamun/Raita/Chutney/Salad/achar,, $9.99>
+<Paratha (2pc) / Kulcha Plate (2pc) ,Chickpeas /2 bread/Gulab Jamun/Raita/Chutney/Salad and achar, , 15.99>
+
+<<VEG DISHES>>
+<Rajma Dal, Red kidney beans cooked in a spiced tomato gravy, $12.99,$16.99>
+<Yellow Dal Fry, Creamy yellow lentils tempered with aromatic spices, $11.99,$15.99>
+<Dal Makhni Tadka, Black lentils finished with buttery spices, $11.99,$15.99>
+<Mix Tawa Veg, Mix vegetables sautéed on a hot tawa with spices, $12.99,$15.99>
+<Aloo Gobi/Jeera Aloo/Aloo Tari,Potatoes tossed with cumin seeds, $12.99,$15.99>
+<Bhindi do Pyaza,Orak cooked with tomatoes and onion., $12.99,$15.99>
+<Chana Masala, Chickpeas with ginger garlic tomatoes herbs and spices, $11.99,$15.99>
+<Veg Korma, Fresh Vegetables with Cashew Nuts and Cream Sauce, $12.99,$16.99>
+<Malai Kofta, Vegetable Dumplings in Creamy Almond and Cashew Sauce, $12.99,$16.99>
+<Butter Paneer, Paneer Cooked in a creamy tomato base with spices, $12.99,$16.99>
+<Paneer Burji, Spiced Scrambled paneer mixed with onions tomatoes and herbs, $13.99,$17.99>
+<Palak Paneer, Spinach cooked with indian cheese with ginger and garlic, $12.99,$16.99>
+<Paneer Methi Malai, Paneer and fenugreek leaves in a smooth creamy gravy., $12.99,$16.99>
+<Shahi Paneer, Paneer cooked in a rich royal-style tomato and cream sauce, $12.99,$16.99>
+<Kadahi Paneer, Cheese and Spices sauteed in an indian wok, $12.99,$16.99>
+<Paneer Tikka Masala, Cheese Marinated in Yogurt Spices and Grilled, $12.99,$16.99>
+<Chilli Paneer Dry / Gravy, Paneer tossed in Indo-Chinese chili sauce (dry or gravy), $12.99,$16.99>
+<Eggplant Bharta, Grilled Eggplant served with spices, $11.99,$15.99>
+<Mushroom Dishes,Mushroom chilli(dry/gravy) / Mutter Mushroom/ Kadahi Mushroom, $12.99,$16.99>
+<Kadhi Pakora, Yogurt-based curry with crispy gram flour dumplings, $11.99,$15.99>
+
+<<CHICKEN SPECIALS>>
+<Butter Chicken, Tender chicken in a rich buttery tomato sauce, $14.99,$18.99>
+<Chicken Curry, Traditional spiced chicken curry, $13.99,$16.99>
+<Coconut Chicken Curry,Marinated in special spices & cooked in coconut creamy sauce,$13.99,16.99>
+<Mango Chicken, Sweet and tangy mango-flavored chicken curry, $13.99,$16.99>
+<Kadai Chicken, Chicken cooked with bell peppers in a spicy gravy, $13.99,$16.99>
+<Chicken Tikka Masala, Grilled chicken in creamy spiced tomato sauce, $14.99,$18.99>
+<Chicken Vindaloo, Spicy Goan-style tangy chicken curry cooked with potatoes, $13.99,$16.99>
+<Spinach Chicken, , $13.99,$16.99>
+<Sabji Chicken, , $13.99,$16.99>
+<Chicken Methi Malai, Chicken with fenugreek leaves in creamy sauce, $13.99,$16.99>
+<Chilli Chicken dry / gravy, Indo-Chinese style chicken, $13.99,$16.99>
+<Egg Curry, Boiled eggs cooked in spiced tomato gravy, $12.99,$16.99>
+
+<<LAMB / GOAT SPECIALS>>
+<Lamb / Goat Curry, Tender lamb/goat in traditional curry, $15.99,$21.99>
+<Lamb / Goat Masala, Rich and flavorful masala gravy with succulent lamb or goat, $15.99,$21.99>
+<Lamb / Goat Spinach, Chunks of lamb or goat slow-cooked with fresh spinach and fragrant herbs, $15.99,$21.99>
+<Butter Lamb, Lamb slow-simmered in a silky buttery sauce enriched with subtle spices., $15.99,$21.99>
+<Lamb / Goat Korma, A rich and creamy curry with nuts and exotic spices, $15.99,$21.99>
+<Lamb/ Goat Vindaloo, Cooked in tangy sauce with potatoes,$15.99,$21.99>
+
+<space:100>
+
+<<SEA FOOD,Fish(L),Prawn(L)>>
+<Coconut Curry Fish/ Prawn, Cooked with coconut cream and indian spices, $16.99, $21.99>
+<Curry Fish/ Prawn, Traditional spiced curry with fish or prawns,$16.99, $21.99>
+<Kadahi Fish/ Prawn, Cooked with onion/Capsicum/Ginger/tomatoes, $16.99, $21.99>
+<Vindaloo Fish/ Prawn, Tangy and spicy Goan-style fish or prawn curry, $16.99, $21.99>
+<Chilli Fish / Prawn, Dry / gravy, $16.99, $21.99> 
+
+<<SIDE DISHES>>
+<Dahi / Raita / Bondi Raita, , $6.49>
+<Salad, , $3.99>
+
+<<BREAD & RICE>>
+<Butter Naan, Soft naan bread brushed with butter., $1.75>
+<Garlic Naan, Naan topped with fresh garlic and butter, $2.75>
+<Tandoori roti, Whole Wheat bread baked in a clay oven., $1.99>
+<Tawa Roti, Whole Wheat bread cooked in tawa., $1.50>
+<Rumali Roti, Thin soft handkerchief-style flatbread., $2.99>
+<Bhatura, Deep fried leavened bread, $2.49>
+<Chicken Naan (2pc), Bread stuffed with minced chicken and spices, $10.99>
+<Paratha (2pc) / Amritsari Kulcha (2pc), Paneer +$1 / Aloo / Mix, $9.99>
+<Pilau Rice, Fragrant basmati rice cooked with mild spices, $8.99>
+<Khichdi, Lentil and Rice dish, $11.99>
+<Veg Biryani, Aromatic basmati rice layered with spiced vegetables, $14.99>
+<Chicken Biryani, Fragrant rice cooked with tender chicken and spices, $17.99>
+<Lamb / Goat Biryani, Rich biryani with slow-cooked lamb or goat, $19.99>
+<Prawn Biryani, Spiced basmati rice with succulent prawns, $21.99>
+<Egg Fried Rice, Stir-fried rice with eggs and vegetables, $17.99>
+
+<<TANDOORI>>
+<Pudina Paneer Tikka, Mint-marinated grilled paneer cubes, $14.99>
+<Tandoori Chicken, Juicy chicken marinated in spices and roasted in a clay oven, $15.99>
+<Chicken Tikka, Chicken grilled with spices, $15.99>
+<Malai Chicken Tikka, Creamy tender chicken tikka with mild spices, $15.99>
+<Chicken Tikka Kali Mirch, Pepper-spiced grilled chicken tikka, $15.99>
+<Achari Chicken Tikka, Pickle-spiced smoky chicken tikka, $15.99>
+<Veg Mix Grill, Assorted grilled seasonal vegetables, $16.99>
+<Fish Tikka, Marinated prawns roasted in a tandoor, $15.99>
+<Tandoori Prawns, Prawns marinated in Indian spices and grilled in tandoor., $17.99>
+<Chicken Seekh Kabab, Minced chicken seasoned with spices and grilled., $17.99>
+
+<<BEVERAGES & DESERTS>>
+<Tea / Coffee, , $2.50>
+<Lassi (sweet/salt), Refreshing yogurt drink sweet or salted, $4.99>
+<Mango Shake / Mango Lassi, Creamy mango-flavored yogurt or milkshake, $5.50>
+<Soft Drink, , $1.99,$3.99>
+<Water Bottle, , $1.50>
+<Rasmalai, Soft cheese dumplings soaked in sweetened milk, (4pc) $8, (8pc) $15>
+<Gulab Jamun,Soft milk dumplings in sweet rose-cardamom syrup, (4pc) $5, (8pc) $9>
+<Gajrela, Sweet carrot pudding with nuts, $8.99>
+<Vanilla Ice Cream, , $3.99>
+<qr code: youtube.com,Like Our Food? Leave Us a Review></textarea>
+                <div style="font-size: 11px; color: #888; margin-top: 5px; text-align: right;">
+                    Supports HTML tags, custom spacers & QR codes
+                </div>
+            </div>
+            
+            <!-- Panel Covers -->
+            <div class="options-group">
+                <h4>Panel Covers</h4>
+                <div style="font-size:13px; color:#666; margin-bottom:10px; line-height:1.4;">
+                    Upload a full-size image for the <strong>Bottom Right Panel (Panel 6)</strong>. This is perfect for addresses, maps, or dedicated cover art. Text will skip this panel.
+                </div>
+                <div class="form-row">
+                    <input type="file" id="panel6-upload" accept="image/png, image/jpeg" onchange="handlePanel6Upload(event)">
+                    <button class="clear-img-btn" onclick="removePanel6Cover()" title="Remove Cover Image">X</button>
+                </div>
+            </div>
+
+            <div class="options-group">
+                <h4>Typography & Styles</h4>
+                
+                <div class="form-row">
+                    <label>Font Family</label>
+                    <select id="font-family" onchange="generateMenu()">
+                        <option value="'Playfair Display', serif" selected>Playfair Display (Elegant)</option>
+                        <option value="'Lato', sans-serif">Lato (Modern)</option>
+                        <option value="'Montserrat', sans-serif">Montserrat (Bold)</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label>Base Size</label>
+                    <input type="number" id="base-font-size" value="33" min="20" max="60" onchange="generateMenu()">
+                </div>
+
+                <div class="form-row">
+                    <label>Desc Size</label>
+                    <input type="number" id="description-font-size" value="31" min="16" max="50" onchange="generateMenu()">
+                </div>
+
+                <div class="form-row">
+                    <label>Line Height</label>
+                    <input type="number" id="line-height" value="1.0" step="0.1" min="0.8" max="3.0" onchange="generateMenu()">
+                </div>
+                
+                <div class="form-row">
+                    <label>QR Scale</label>
+                    <input type="range" id="qr-size" min="60" max="250" value="120" oninput="generateMenu()" title="Adjusts QR Element Sizes">
+                </div>
+                
+                <div class="form-row">
+                    <label>QR Container Width</label>
+                    <input type="range" id="qr-width" min="0" max="100" value="40" oninput="generateMenu()" title="Adjusts Box Width">
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-dots" onchange="generateMenu()" checked>
+                        Show Price Dots
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="center-headers" onchange="generateMenu()">
+                        Center Headers
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="caps-headers" onchange="generateMenu()" checked>
+                        Uppercase Headers
+                    </label>
+                </div>
+
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                <!-- Color pickers removed as text is forced black -->
+            </div>
+
+            <div class="options-group">
+                <h4>Assets & Export</h4>
+                <div class="form-row">
+                    <label>Filename</label>
+                    <input type="text" id="file-name" placeholder="MyMenu" value="Menu">
+                </div>
+                
+                <div class="form-row">
+                    <label>Menu Version</label>
+                    <input type="text" id="menu-version" placeholder="e.g. Fall 2025" oninput="generateMenu()">
+                </div>
+                
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Upload Inline Image (&lt;img = name.png&gt;)</label>
+                <input type="file" id="image-upload" accept="image/png, image/jpeg" onchange="handleImageUpload(event)">
+                
+                <label class="checkbox-container" style="background:#e8f5e9; border-color:#c8e6c9; color:#2e7d32;">
+                    <input type="checkbox" id="flip-back-page">
+                    Flip Back Page 180° (Double-sided Print)
+                </label>
+
+                <button class="email-btn" onclick="emailMenu()">Email Configuration Draft</button>
+                <button class="export-btn" onclick="exportToPDF()">Download High-Res PDF</button>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: PREVIEW -->
+        <div class="preview-panel" id="preview-container">
+            
+            <div class="preview-label">Front Side (Panels 1, 2, 3)</div>
+            <div class="preview-wrapper">
+                <div class="preview-page" id="preview-front">
+                    <div class="menu-panel" id="panel1"></div>
+                    <div class="menu-panel" id="panel2"></div>
+                    <div class="menu-panel" id="panel3"></div>
+                </div>
+            </div>
+
+            <div class="preview-label">Back Side (Panels 4, 5, 6)</div>
+            <div class="preview-wrapper">
+                <div class="preview-page" id="preview-back">
+                    <div class="menu-panel" id="panel4"></div>
+                    <div class="menu-panel" id="panel5"></div>
+                    <div class="menu-panel" id="panel6"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const uploadedImages = {};
+        let panel6CoverData = null;
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set default if empty
+            if(!document.getElementById('menu-input').value) {
+                generateMenu();
+            } else {
+                generateMenu();
+            }
+        });
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImages[file.name] = e.target.result;
+                generateMenu();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePanel6Upload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                panel6CoverData = e.target.result;
+                generateMenu();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePanel6Cover() {
+            panel6CoverData = null;
+            document.getElementById('panel6-upload').value = '';
+            generateMenu();
+        }
+
+        // --- Section Reordering Logic ---
+        function updateSectionList(inputText) {
+            const listContainer = document.getElementById('section-list');
+            listContainer.innerHTML = '';
+
+            const rawSections = inputText.split(/(?=^<<.*?>>)/gm);
+            const sections = rawSections.filter(s => s.trim().length > 0);
+
+            sections.forEach((sectionText, index) => {
+                const firstLine = sectionText.trim().split('\n')[0];
+                let title = "Unlabeled Content";
+                if(firstLine.startsWith('<<')) {
+                    title = firstLine.replace(/<<|>>/g, '').split(',')[0].trim();
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'section-item';
+                itemDiv.innerHTML = `
+                    <span style="font-weight:600; color:#333;">${title}</span>
+                    <div class="section-controls">
+                        <button onclick="moveSection(${index}, -1)" ${index === 0 ? 'disabled' : ''}>▲</button>
+                        <button onclick="moveSection(${index}, 1)" ${index === sections.length - 1 ? 'disabled' : ''}>▼</button>
+                    </div>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        function moveSection(index, direction) {
+            const input = document.getElementById('menu-input');
+            const rawSections = input.value.split(/(?=^<<.*?>>)/gm).filter(s => s.trim().length > 0);
+            
+            if (index + direction < 0 || index + direction >= rawSections.length) return;
+
+            const temp = rawSections[index];
+            rawSections[index] = rawSections[index + direction];
+            rawSections[index + direction] = temp;
+
+            input.value = rawSections.join('').trim();
+            generateMenu();
+        }
+
+        function generateMenu() {
+            const input = document.getElementById('menu-input').value;
+            const fontFamily = document.getElementById('font-family').value;
+            const baseFontSize = document.getElementById('base-font-size').value;
+            const descriptionFontSize = document.getElementById('description-font-size').value;
+            const lineHeight = document.getElementById('line-height').value;
+            const qrSize = parseInt(document.getElementById('qr-size').value);
+            const qrWidth = parseInt(document.getElementById('qr-width').value);
+            const versionText = document.getElementById('menu-version').value;
+            
+            const showDots = document.getElementById('show-dots').checked;
+            const centerHeaders = document.getElementById('center-headers').checked;
+            const capsHeaders = document.getElementById('caps-headers').checked;
+
+            // Forces Black Text
+            const colorHeader = "#000000";
+            const colorItem = "#000000";
+            const colorDesc = "#000000";
+
+            updateSectionList(input);
+
+            const allPanels = [
+                document.getElementById('panel1'),
+                document.getElementById('panel2'),
+                document.getElementById('panel3'),
+                document.getElementById('panel4'),
+                document.getElementById('panel5'),
+                document.getElementById('panel6')
+            ];
+            
+            allPanels.forEach(panel => {
+                panel.innerHTML = '';
+                panel.style.fontFamily = fontFamily;
+                panel.style.fontSize = `${baseFontSize}px`;
+                panel.style.lineHeight = lineHeight;
+                panel.style.padding = '0.9in';
+            });
+
+            let flowPanels = [...allPanels]; 
+
+            const p6 = document.getElementById('panel6');
+            if (panel6CoverData) {
+                const img = document.createElement('img');
+                img.src = panel6CoverData;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'fill'; 
+                p6.style.padding = '0'; 
+                p6.appendChild(img);
+                flowPanels.pop();
+            }
+
+            const lines = input.split('\n').map(line => line.trim()).filter(line => line !== '');
+            let currentPanelIndex = 0; 
+            let currentSection = null;
+            let regularLabel = 'Regular';
+            let largeLabel = 'Large';
+
+            lines.forEach(line => {
+                if (currentPanelIndex >= flowPanels.length) {
+                    currentPanelIndex = 0; 
+                }
+                
+                let targetPanel = flowPanels[currentPanelIndex];
+
+                if (line.startsWith('<<') && line.endsWith('>>')) {
+                    const sectionParts = line.slice(2, -2).split(',').map(part => part.trim());
+                    let sectionName = sectionParts[0];
+                    if (capsHeaders) sectionName = sectionName.toUpperCase();
+                    
+                    regularLabel = sectionParts[1] || 'Regular';
+                    largeLabel = sectionParts[2] || 'Large';
+                    
+                    const centerStyle = centerHeaders ? 'justify-content: center; text-align: center;' : 'justify-content: space-between;';
+                    const priceHeaderStyle = centerHeaders ? 'display:none;' : `font-size: ${baseFontSize * 0.9}px;`;
+
+                    currentSection = document.createElement('div');
+                    currentSection.className = 'menu-section';
+                    currentSection.innerHTML = `
+                        <h2 style="font-size: ${baseFontSize * 1.4}px; color: ${colorHeader}; border-color: ${colorHeader}; ${centerStyle}">
+                            <span>${sectionName}</span>
+                            <span class="price-header" style="${priceHeaderStyle}">${regularLabel} ${largeLabel}</span>
+                        </h2>
+                    `;
+                    targetPanel.appendChild(currentSection);
+                } else if (line.startsWith('<space:')) {
+                    const spaceHeight = parseInt(line.match(/\d+/)[0]);
+                    const spaceDiv = document.createElement('div');
+                    spaceDiv.style.height = `${spaceHeight * 3}px`;
+                    targetPanel.appendChild(spaceDiv);
+                } else if (line.startsWith('{') && line.endsWith('}')) {
+                    const htmlContent = line.slice(1, -1);
+                    const htmlDiv = document.createElement('div');
+                    htmlDiv.innerHTML = htmlContent;
+                    targetPanel.appendChild(htmlDiv);
+                } else if (line.startsWith('<img =')) {
+                    const imageName = line.split('=')[1].trim().slice(0, -1);
+                    if (uploadedImages[imageName]) {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = uploadedImages[imageName];
+                        imgElement.style.maxWidth = '100%';
+                        imgElement.style.height = 'auto';
+                        targetPanel.appendChild(imgElement);
+                    }
+                } else if (line.toLowerCase().startsWith('<qr code:')) {
+                    const content = line.substring(line.indexOf(':') + 1, line.lastIndexOf('>'));
+                    const parts = content.split(',');
+                    const link = parts[0].trim();
+                    const caption = parts.slice(1).join(',').trim(); 
+
+                    const qrContainer = document.createElement('div');
+                    qrContainer.className = 'qr-container';
+                    // Use QR Width slider to control padding/gap
+                    qrContainer.style.paddingLeft = (20 + qrWidth) + 'px';
+                    qrContainer.style.paddingRight = (20 + qrWidth) + 'px';
+                    qrContainer.style.gap = (30 + (qrWidth * 0.5)) + 'px';
+
+                    // Right column container
+                    const qrRight = document.createElement('div');
+                    qrRight.className = 'qr-right';
+
+                    const stars = document.createElement('div');
+                    stars.className = 'qr-stars';
+                    stars.innerHTML = '★★★★★';
+                    
+                    // Scale elements based on QR Size slider (base 100)
+                    // Stars logic: 24px default. Ratio 0.24
+                    stars.style.fontSize = Math.max(14, (qrSize * 0.25)) + 'px';
+
+                    const qrCodeDiv = document.createElement('div');
+                    qrCodeDiv.className = 'qr-left';
+                    
+                    new QRCode(qrCodeDiv, {
+                        text: link,
+                        width: qrSize,
+                        height: qrSize,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+
+                    const captionDiv = document.createElement('div');
+                    captionDiv.className = 'qr-caption';
+                    captionDiv.innerText = caption;
+                    // Text logic: Base 0.7 originally. Now scale with slider.
+                    captionDiv.style.fontSize = Math.max(10, (qrSize * 0.16)) + 'px'; 
+                    // Allow caption to be wider if container grows
+                    captionDiv.style.maxWidth = Math.max(400, (qrSize * 1.5)) + 'px';
+
+                    // Construct new layout: Left = QR, Right = (Stars Top, Text Bottom)
+                    qrContainer.appendChild(qrCodeDiv);
+                    
+                    qrRight.appendChild(stars);
+                    qrRight.appendChild(captionDiv);
+                    qrContainer.appendChild(qrRight);
+                    
+                    // Append Version text
+                    if(versionText) {
+                        const verDiv = document.createElement('div');
+                        verDiv.className = 'qr-version';
+                        verDiv.innerText = versionText;
+                        qrContainer.appendChild(verDiv);
+                    }
+
+                    targetPanel.appendChild(qrContainer);
+
+                } else if (line.startsWith('<') && line.endsWith('>')) {
+                    const [name, description, price, largePrice] = line.slice(1, -1).split(',').map(s => s.trim());
+                    
+                    const dots = showDots ? '<span class="item-dots"></span>' : '';
+                    
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'menu-item';
+                    itemDiv.innerHTML = `
+                        <div class="item-header">
+                            <span class="item-name" style="color:${colorItem}">${name}</span>
+                            ${dots}
+                            <span class="item-prices" style="color:${colorDesc}">${price} ${largePrice ? largePrice : ''}</span>
+                        </div>
+                        <div class="item-description" style="font-size: ${descriptionFontSize}px; color:${colorDesc}">${description}</div>
+                    `;
+                    if (currentSection) {
+                        currentSection.appendChild(itemDiv);
+                    } else {
+                        targetPanel.appendChild(itemDiv);
+                    }
+                }
+
+                if (targetPanel.scrollHeight > targetPanel.clientHeight) {
+                    currentPanelIndex = (currentPanelIndex + 1);
+                    currentSection = null;
+                }
+            });
+        }
+
+        function exportToPDF() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const fileName = document.getElementById('file-name').value || 'menu';
+                const shouldFlip = document.getElementById('flip-back-page').checked;
+                
+                const frontPreview = document.getElementById('preview-front');
+                const backPreview = document.getElementById('preview-back');
+
+                const doc = new jsPDF('l', 'in', [11, 8.5]);
+
+                html2canvas(frontPreview, {scale: 3, useCORS: true}).then(frontCanvas => {
+                    const frontImgData = frontCanvas.toDataURL('image/png');
+                    doc.addImage(frontImgData, 'PNG', 0, 0, 11, 8.5);
+
+                    html2canvas(backPreview, {scale: 3, useCORS: true}).then(backCanvas => {
+                        const backImgData = backCanvas.toDataURL('image/png');
+                        doc.addPage();
+
+                        if (shouldFlip) {
+                            doc.addImage(backImgData, 'PNG', 11, 8.5, 11, 8.5, undefined, 'FAST', 180);
+                        } else {
+                            doc.addImage(backImgData, 'PNG', 0, 0, 11, 8.5);
+                        }
+                        
+                        doc.save(`${fileName}.pdf`);
+                        
+                        document.getElementById('loading-overlay').style.display = 'none';
+                    });
+                });
+            }, 100);
+        }
+
+        function emailMenu() {
+            const menuText = document.getElementById('menu-input').value;
+            const fileName = document.getElementById('file-name').value;
+            const subject = encodeURIComponent(`Menu Configuration: ${fileName}`);
+            const body = encodeURIComponent(
+                "Here is the menu configuration text. Copy and paste this into the Tri-fold Menu Generator to restore your work:\n\n" + 
+                menuText
+            );
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>

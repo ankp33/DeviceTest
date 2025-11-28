@@ -1,0 +1,131 @@
+<<STARTERS>>
+< Veg Soup / Manchow Soup with Noodles, , $6.99>
+<Chicken Soup,, $7.99>
+<Veg Pakora,, $7.50,$10.99>
+<Gobi Pakora,, $8.50,$11.99>
+<Paneer Pakora,, $10.99,$14.99>
+<Chicken Pakora,, $10.99,$15.99>
+<Fish Pakora, , $10.99,$15.99>
+<Prawn Pakora,, $14.99,$21.99>
+<Veggie Spring Roll (10 pc), , $8.99>
+<Veg Samosa 1pc / Allo Tikki 1pc, , $1.25>
+<Chana Samosa (2pc) , , $6.99,$9.99>
+<Aloo Tikki with Chana (2pc), , $6.99,$9.99>
+<Veg Mix Platter, 2pc samosa 2pc tikki  3pc paneer pakora 4 pc spring roll and veg pakora, $12.99>
+<Chat Papri, Crunchy wafers topped with tangy tamarind chutney yogurt and spices, $6.99,$9.99>
+<Noodle burger with Coke and Fries, Crispy noodle tikki with fresh lettuce melted cheese and soft bread, $9.99>
+<Chicken Burger with coke and fries, Grilled chicken patty with fresh lettuce melted cheese and soft bread., $11.99>
+<Veg Noodles, Stir-fried noodles tossed with fresh vegetables and savory sauces, $13.99>
+<Chicken Noodles, Stir-fried noodles with tender chicken and mixed vegetables in a sauce, $16.99>
+<Veg Wrap, Soft flatbread filled with fresh veggies herbs and tangy sauce, $7.99>
+<Chicken Wrap, Soft flatbread loaded with spiced chicken veggies and creamy sauce, $9.99>
+<Veg Butter Pasta, Pasta tossed in creamy butter sauce with vegetables and mild spices, $12.99>
+<Chicken Pasta, Pasta roasted with garlic capsicum onion butter sauce and chicken, $16.99>
+<Royal Veg Soya Chap, Cream chilli butter mint, $14.99>
+<Veg Manchurian (Dry / Gravy), Deep fried mixed vegetables dumpling coated in soya sauce and spices, $12.99,$15.99>
+<Crispy Manchurian Gobi, Golden-fried cauliflower in spicy Manchurian glaze, $14.99>
+<Pav Bhaji, Mashed spicy vegetable curry served with buttered bread rolls, $10.99>
+<Papadam (2pc), Crispy lentil wafers, $1.99>
+<Fries, , $6.99>
+<Chicken Wings, , $12.99>
+<<THALI,-,-,>>
+<Veg Thali,2 Dishes/2pc Naan or Roti/Rice/Gulab Jamun/ Achar/Raita, ,13.99>
+<Non Veg Thali,2 Dishes/ 2pc Naan or Roti/Rice/Gulab Jamun/ Achar/Raita,16.99>
+<Chana Bhatura / Puri,Chickpeas/2 fluffy fried bread/Gulab Jamun/Raita/Chutney/Salad/achar,, $9.99>
+<Paratha (2pc) / Kulcha Plate (2pc) ,Chickpeas /2 bread/Gulab Jamun/Raita/Chutney/Salad and achar, , 15.99>
+<<VEG DISHES>>
+<Rajma Dal, Red kidney beans cooked in a spiced tomato gravy, $12.99,$16.99>
+<Yellow Dal Fry, Creamy yellow lentils tempered with aromatic spices, $11.99,$15.99>
+<Dal Makhni Tadka, Black lentils finished with buttery spices, $11.99,$15.99>
+<Mix Tawa Veg, Mix vegetables sautéed on a hot tawa with spices, $12.99,$15.99>
+<Aloo Gobi/Jeera Aloo/Aloo Tari,Potatoes tossed with cumin seeds, $12.99,$15.99>
+<Bhindi do Pyaza,Orak cooked with tomatoes and onion., $12.99,$15.99>
+<Chana Masala, Chickpeas with ginger garlic tomatoes herbs and spices, $11.99,$15.99>
+<Veg Korma, Fresh Vegetables with Cashew Nuts and Cream Sauce, $12.99,$16.99>
+<Malai Kofta, Vegetable Dumplings in Creamy Almond and Cashew Sauce, $12.99,$16.99>
+<Butter Paneer, Paneer Cooked in a creamy tomato base with spices, $12.99,$16.99>
+<Paneer Burji, Spiced Scrambled paneer mixed with onions tomatoes and herbs, $13.99,$17.99>
+<Palak Paneer, Spinach cooked with indian cheese with ginger and garlic, $12.99,$16.99>
+<Paneer Methi Malai, Paneer and fenugreek leaves in a smooth creamy gravy., $12.99,$16.99>
+<Shahi Paneer, Paneer cooked in a rich royal-style tomato and cream sauce, $12.99,$16.99>
+<Kadahi Paneer, Cheese and Spices sauteed in an indian wok, $12.99,$16.99>
+<Paneer Tikka Masala, Cheese Marinated in Yogurt Spices and Grilled, $12.99,$16.99>
+<Chilli Paneer Dry / Gravy, Paneer tossed in Indo-Chinese chili sauce (dry or gravy), $12.99,$16.99>
+<Eggplant Bharta, Grilled Eggplant served with spices, $11.99,$15.99>
+<Mushroom Dishes,Mushroom chilli(dry/gravy) / Mutter Mushroom/ Kadahi Mushroom, $12.99,$16.99>
+<Kadhi Pakora, Yogurt-based curry with crispy gram flour dumplings, $11.99,$15.99>
+<<CHICKEN SPECIALS>>
+<Butter Chicken, Tender chicken in a rich buttery tomato sauce, $14.99,$18.99>
+<Chicken Curry, Traditional spiced chicken curry, $13.99,$16.99>
+<Coconut Chicken Curry,Marinated in special spices & cooked in coconut creamy sauce,$13.99,16.99>
+<Mango Chicken, Sweet and tangy mango-flavored chicken curry, $13.99,$16.99>
+<Kadai Chicken, Chicken cooked with bell peppers in a spicy gravy, $13.99,$16.99>
+<Chicken Tikka Masala, Grilled chicken in creamy spiced tomato sauce, $14.99,$18.99>
+<Chicken Vindaloo, Spicy Goan-style tangy chicken curry cooked with potatoes, $13.99,$16.99>
+<Spinach Chicken, , $13.99,$16.99>
+<Sabji Chicken, , $13.99,$16.99>
+<Chicken Methi Malai, Chicken with fenugreek leaves in creamy sauce, $13.99,$16.99>
+<Chilli Chicken dry / gravy, Indo-Chinese style chicken, $13.99,$16.99>
+<Egg Curry, Boiled eggs cooked in spiced tomato gravy, $12.99,$16.99>
+
+<<LAMB / GOAT SPECIALS>>
+<Lamb / Goat Curry, Tender lamb/goat in traditional curry, $15.99,$21.99>
+<Lamb / Goat Masala, Rich and flavorful masala gravy with succulent lamb or goat, $15.99,$21.99>
+<Lamb / Goat Spinach, Chunks of lamb or goat slow-cooked with fresh spinach and fragrant herbs, $15.99,$21.99>
+<Butter Lamb, Lamb slow-simmered in a silky buttery sauce enriched with subtle spices., $15.99,$21.99>
+<Lamb / Goat Korma, A rich and creamy curry with nuts and exotic spices, $15.99,$21.99>
+<Lamb/ Goat Vindaloo, Cooked in tangy sauce with potatoes,$15.99,$21.99>
+
+<space:100>
+
+<<SEA FOOD,Fish(L),Prawn(L)>>
+<Coconut Curry Fish/ Prawn, Cooked with coconut cream and indian spices, $16.99, $21.99>
+<Curry Fish/ Prawn, Traditional spiced curry with fish or prawns,$16.99, $21.99>
+<Kadahi Fish/ Prawn, Cooked with onion/Capsicum/Ginger/tomatoes, $16.99, $21.99>
+<Vindaloo Fish/ Prawn, Tangy and spicy Goan-style fish or prawn curry, $16.99, $21.99>
+<Chilli Fish / Prawn, Dry / gravy, $16.99, $21.99> 
+<<SIDE DISHES>>
+<Dahi / Raita / Bondi Raita, , $6.49>
+<Salad, , $3.99>
+<<BREAD & RICE>>
+<Butter Naan, Soft naan bread brushed with butter., $1.75>
+<Garlic Naan, Naan topped with fresh garlic and butter, $2.75>
+<Tandoori roti, Whole Wheat bread baked in a clay oven., $1.99>
+<Tawa Roti, Whole Wheat bread cooked in tawa., $1.50>
+<Rumali Roti, Thin soft handkerchief-style flatbread., $2.99>
+<Bhatura, Deep fried leavened bread, $2.49>
+<Chicken Naan (2pc), Bread stuffed with minced chicken and spices, $10.99>
+<Paratha (2pc) / Amritsari Kulcha (2pc), Paneer +$1 / Aloo / Mix, $9.99>
+<Pilau Rice, Fragrant basmati rice cooked with mild spices, $8.99>
+<Khichdi, Lentil and Rice dish, $11.99>
+<Veg Biryani, Aromatic basmati rice layered with spiced vegetables, $14.99>
+<Chicken Biryani, Fragrant rice cooked with tender chicken and spices, $17.99>
+<Lamb / Goat Biryani, Rich biryani with slow-cooked lamb or goat, $19.99>
+<Prawn Biryani, Spiced basmati rice with succulent prawns, $21.99>
+<Egg Fried Rice, Stir-fried rice with eggs and vegetables, $17.99>
+
+<<TANDOORI>>
+<Pudina Paneer Tikka, Mint-marinated grilled paneer cubes, $14.99>
+<Tandoori Chicken, Juicy chicken marinated in spices and roasted in a clay oven, $15.99>
+<Chicken Tikka, Chicken grilled with spices, $15.99>
+<Malai Chicken Tikka, Creamy tender chicken tikka with mild spices, $15.99>
+<Chicken Tikka Kali Mirch, Pepper-spiced grilled chicken tikka, $15.99>
+<Achari Chicken Tikka, Pickle-spiced smoky chicken tikka, $15.99>
+<Veg Mix Grill, Assorted grilled seasonal vegetables, $16.99>
+<Fish Tikka, Marinated prawns roasted in a tandoor, $15.99>
+<Tandoori Prawns, Prawns marinated in Indian spices and grilled in tandoor., $17.99>
+<Chicken Seekh Kabab, Minced chicken seasoned with spices and grilled., $17.99>
+
+<<BEVERAGES & DESERTS>>
+<Tea / Coffee, , $2.50>
+<Lassi (sweet/salt), Refreshing yogurt drink sweet or salted, $4.99>
+<Mango Shake / Mango Lassi, Creamy mango-flavored yogurt or milkshake, $5.50>
+<Soft Drink, , $1.99,$3.99>
+<Water Bottle, , $1.50>
+<Rasmalai, Soft cheese dumplings soaked in sweetened milk, (4pc) $8, (8pc) $15>
+<Gulab Jamun,Soft milk dumplings in sweet rose-cardamom syrup, (4pc) $5, (8pc) $9>
+<Gajrela, Sweet carrot pudding with nuts, $8.99>
+<Vanilla Ice Cream, , $3.99>
+<qr code: https://g.page/r/CQT9G2hrkBBGEAE/review, Like Our Food? Give Us a Review>
+
+

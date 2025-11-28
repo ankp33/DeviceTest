@@ -110,6 +110,34 @@
         .qr-version {
             color: #000000 !important;
         }
+        
+        /* Popular Indicator Styles */
+        .popular-star {
+            color: #000000 !important;
+            font-size: 0.9em;
+            margin-left: 5px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+        
+        .popular-pill {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            padding: 2px 10px;
+            border-radius: 12px; /* Curvy rectangle */
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .popular-label {
+            font-size: 0.6em;
+            text-transform: uppercase;
+            border: 1px solid #000;
+            padding: 1px 4px;
+            margin-left: 5px;
+            border-radius: 2px;
+            vertical-align: middle;
+        }
 
         /* Styles Structure */
         h2 {
@@ -186,7 +214,8 @@
         .menu-panel {
             width: calc(33in / 3);
             height: 25.5in;
-            padding: 0.9in;
+            /* Increased bottom padding to 1.2in for safety margin */
+            padding: 0.9in 0.9in 1.2in 0.9in;
             box-sizing: border-box;
             border-right: 1px dashed #e0e0e0;
             overflow: hidden;
@@ -224,7 +253,7 @@
         }
         .item-name {
             font-weight: bold;
-            margin-right: 5px; 
+            margin-right: 8px; 
         }
         .item-dots {
             flex-grow: 1;
@@ -250,15 +279,15 @@
             flex-direction: row; /* Side by side */
             align-items: center;
             justify-content: center;
-            margin: 50px auto 50px auto; /* 50px top AND bottom for symmetry */
-            border: 3px double #000; /* Elegant Double Border Black */
+            margin: 50px auto 50px auto; 
+            border: 3px double #000;
             padding: 20px; 
             border-radius: 8px;
             width: fit-content;
             min-width: 300px;
             background: #fff;
             gap: 20px;
-            position: relative; /* For version number positioning */
+            position: relative; 
         }
         .qr-left {
             flex-shrink: 0;
@@ -285,7 +314,7 @@
             position: absolute;
             bottom: 5px;
             right: 10px;
-            font-sipze: 30px;
+            font-size: 10px;
             font-family: monospace;
             opacity: 1;
         }
@@ -569,7 +598,7 @@
 <Kadhi Pakora, Yogurt-based curry with crispy gram flour dumplings, $11.99,$15.99>
 
 <<CHICKEN SPECIALS>>
-<Butter Chicken, Tender chicken in a rich buttery tomato sauce, $14.99,$18.99>
+<Butter Chicken, Tender chicken in a rich buttery tomato sauce, $14.99,$18.99, P>
 <Chicken Curry, Traditional spiced chicken curry, $13.99,$16.99>
 <Coconut Chicken Curry,Marinated in special spices & cooked in coconut creamy sauce,$13.99,16.99>
 <Mango Chicken, Sweet and tangy mango-flavored chicken curry, $13.99,$16.99>
@@ -699,6 +728,16 @@
                     <label>QR Container Width</label>
                     <input type="range" id="qr-width" min="0" max="100" value="40" oninput="generateMenu()" title="Adjusts Box Width">
                 </div>
+                
+                <div class="form-row">
+                    <label>Popular Indicator</label>
+                    <select id="popular-style" onchange="generateMenu()">
+                        <option value="pill" selected>Highlight (Pill)</option>
+                        <option value="star">Star (★)</option>
+                        <option value="fire">Fire (🔥)</option>
+                        <option value="label">"POPULAR" Label</option>
+                    </select>
+                </div>
 
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
                     <label class="checkbox-container">
@@ -774,14 +813,68 @@
 
         // Initial Load
         window.addEventListener('DOMContentLoaded', () => {
-            // Set default if empty
-            if(!document.getElementById('menu-input').value) {
-                generateMenu();
-            } else {
-                generateMenu();
-            }
+            // Priority: LocalStorage (Simulated Server) -> Fetched File -> Default Hardcoded
+            loadGlobalData();
         });
 
+        function loadGlobalData() {
+            // 1. Text
+            const globalText = localStorage.getItem('global_menu_txt');
+            if(globalText) {
+                document.getElementById('menu-input').value = globalText;
+            } else {
+                fetch('menu.txt').then(r => {
+                    if(r.ok) return r.text();
+                    throw new Error();
+                }).then(t => {
+                    document.getElementById('menu-input').value = t;
+                    generateMenu();
+                }).catch(e => {
+                    // Keep default
+                    generateMenu();
+                });
+            }
+
+            // 2. Image
+            const globalImg = localStorage.getItem('global_menu_png');
+            if(globalImg) {
+                uploadedImages['menu.png'] = globalImg;
+            } else {
+                fetch('menu.png').then(r => {
+                    if(r.ok) return r.blob();
+                    throw new Error();
+                }).then(b => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        uploadedImages['menu.png'] = reader.result;
+                        generateMenu();
+                    }
+                    reader.readAsDataURL(b);
+                }).catch(e => {});
+            }
+
+            // 3. Defaults
+            const globalDefaults = localStorage.getItem('global_defaults');
+            if(globalDefaults) {
+                const settings = JSON.parse(globalDefaults);
+                if(settings.fontFamily) document.getElementById('font-family').value = settings.fontFamily;
+                if(settings.baseFontSize) document.getElementById('base-font-size').value = settings.baseFontSize;
+                if(settings.descFontSize) document.getElementById('description-font-size').value = settings.descFontSize;
+                if(settings.lineHeight) document.getElementById('line-height').value = settings.lineHeight;
+                if(settings.qrSize) document.getElementById('qr-size').value = settings.qrSize;
+                if(settings.qrWidth) document.getElementById('qr-width').value = settings.qrWidth;
+                if(settings.popularStyle) document.getElementById('popular-style').value = settings.popularStyle;
+                
+                // Toggles
+                if(settings.showDots !== undefined) document.getElementById('show-dots').checked = settings.showDots;
+                if(settings.centerHeaders !== undefined) document.getElementById('center-headers').checked = settings.centerHeaders;
+                if(settings.capsHeaders !== undefined) document.getElementById('caps-headers').checked = settings.capsHeaders;
+            }
+
+            generateMenu();
+        }
+
+        // Standard Handlers
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if(!file) return;
@@ -861,6 +954,7 @@
             const qrSize = parseInt(document.getElementById('qr-size').value);
             const qrWidth = parseInt(document.getElementById('qr-width').value);
             const versionText = document.getElementById('menu-version').value;
+            const popularStyle = document.getElementById('popular-style').value;
             
             const showDots = document.getElementById('show-dots').checked;
             const centerHeaders = document.getElementById('center-headers').checked;
@@ -887,7 +981,8 @@
                 panel.style.fontFamily = fontFamily;
                 panel.style.fontSize = `${baseFontSize}px`;
                 panel.style.lineHeight = lineHeight;
-                panel.style.padding = '0.9in';
+                // Updated padding to fix bottom margin
+                panel.style.padding = '0.9in 0.9in 1.2in 0.9in';
             });
 
             let flowPanels = [...allPanels]; 
@@ -1019,15 +1114,40 @@
                     targetPanel.appendChild(qrContainer);
 
                 } else if (line.startsWith('<') && line.endsWith('>')) {
-                    const [name, description, price, largePrice] = line.slice(1, -1).split(',').map(s => s.trim());
+                    // PARSE POPULAR
+                    let parts = line.slice(1, -1).split(',').map(s => s.trim());
+                    let isPopular = false;
+                    
+                    // Check last element for 'P' flag
+                    if (parts.length > 0 && parts[parts.length - 1].toUpperCase() === 'P') {
+                        isPopular = true;
+                        parts.pop(); // Remove 'P'
+                    }
+                    
+                    const [name, description, price, largePrice] = parts;
                     
                     const dots = showDots ? '<span class="item-dots"></span>' : '';
+                    
+                    // Logic for Popular Style
+                    let nameHTML = name;
+                    
+                    if (isPopular) {
+                        if (popularStyle === 'pill') {
+                            nameHTML = `<span class="popular-pill">${name}</span>`;
+                        } else if (popularStyle === 'star') {
+                            nameHTML = `${name}<span class="popular-star">★</span>`;
+                        } else if (popularStyle === 'fire') {
+                            nameHTML = `${name}<span class="popular-star">🔥</span>`;
+                        } else if (popularStyle === 'label') {
+                            nameHTML = `${name}<span class="popular-label">POPULAR</span>`;
+                        }
+                    }
                     
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'menu-item';
                     itemDiv.innerHTML = `
                         <div class="item-header">
-                            <span class="item-name" style="color:${colorItem}">${name}</span>
+                            <span class="item-name" style="color:${colorItem}">${nameHTML}</span>
                             ${dots}
                             <span class="item-prices" style="color:${colorDesc}">${price} ${largePrice ? largePrice : ''}</span>
                         </div>

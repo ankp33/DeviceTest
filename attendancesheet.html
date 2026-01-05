@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Sheet Generator</title>
+    <style>
+        :root {
+            --header-bg: #e6e6e6; 
+            --title-bg: #f2f2f2;
+            --border-color: #888;
+            --alternating-row-bg: #f9f9f9;
+            --watermark-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #555;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- CONTROLS UI --- */
+        .controls {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        select, input, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #222;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #444; }
+
+        /* --- PAGE LAYOUT --- */
+        .sheet-page {
+            background: white;
+            width: 8.5in;  /* Exact Letter Width */
+            height: 11in; /* Exact Letter Height */
+            padding: 0.5in; /* Safe printable margin */
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden; /* Prevent spillover */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Month Title */
+        .month-title-row th {
+            height: 35px;
+            background-color: var(--title-bg);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* Names Header */
+        .number-header-row th {
+            height: 90px; 
+            background-color: var(--header-bg);
+            vertical-align: bottom;
+            text-align: center;
+            font-size: 0.85rem;
+            padding-bottom: 5px;
+            color: #333;
+        }
+
+        /* --- DATE ALIGNMENT --- */
+        .date-col-header { width: 100px; }
+        
+        .date-cell-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #222;
+        }
+
+        .d-name {
+            width: 35px; 
+            text-align: right; 
+            margin-right: 6px; 
+            color: #444;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .d-num {
+            width: 25px; 
+            text-align: left; 
+        }
+
+        /* Number Columns */
+        .num-col {
+            text-align: center;
+            font-size: 1.4rem; 
+            font-weight: bold;
+            color: var(--watermark-color);
+        }
+
+        /* Rows */
+        tbody tr { height: 48px; }
+        tbody tr:nth-child(even) { background-color: var(--alternating-row-bg); }
+
+        /* --- PRINT SETTINGS (CRITICAL FIX) --- */
+        @media print {
+            @page {
+                size: letter; /* Force US Letter */
+                margin: 0;    /* Kill browser margins */
+            }
+            
+            body {
+                background: none;
+                margin: 0;
+                padding: 0;
+                display: block;
+            }
+
+            .controls { display: none !important; }
+
+            .sheet-page {
+                margin: 0;
+                width: 8.5in;
+                height: 11in;
+                box-shadow: none;
+                page-break-after: always; /* Force new page */
+                break-after: page;        /* Modern force new page */
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            /* Force background colors to print */
+            th {
+                background-color: #e6e6e6 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .month-title-row th {
+                background-color: #f2f2f2 !important;
+            }
+            tbody tr:nth-child(even) {
+                background-color: #f9f9f9 !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="monthSelect">
+            <option value="all">All Year (Batch)</option>
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+        </select>
+        <input type="number" id="yearInput" value="2026" style="width: 80px;">
+        <button onclick="generateSheet()">Generate & Print</button>
+    </div>
+
+    <div id="printArea"></div>
+
+    <script>
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function createRow(dateObj) {
+            const dayName = dayNames[dateObj.getDay()];
+            let dayNum = dateObj.getDate();
+            if (dayNum < 10) dayNum = "0" + dayNum;
+            
+            let rowHtml = `<tr>`;
+            rowHtml += `
+                <td class="date-col">
+                    <div class="date-cell-content">
+                        <span class="d-name">${dayName}</span>
+                        <span class="d-num">${dayNum}</span>
+                    </div>
+                </td>`;
+            for (let i = 1; i <= 8; i++) {
+                rowHtml += `<td class="num-col">${i}</td>`;
+            }
+            rowHtml += `</tr>`;
+            return rowHtml;
+        }
+
+        function createTable(year, monthIndex, startDay, endDay) {
+            const currentMonthName = monthNames[monthIndex];
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr class="month-title-row">
+                            <th colspan="9">${currentMonthName} ${year}</th>
+                        </tr>
+                        <tr class="number-header-row">
+                            <th class="date-col-header"></th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let d = startDay; d <= endDay; d++) {
+                const currentDate = new Date(year, monthIndex, d);
+                html += createRow(currentDate);
+            }
+            html += `</tbody></table>`;
+            return html;
+        }
+
+        function generateSheet() {
+            const year = parseInt(document.getElementById('yearInput').value);
+            const monthVal = document.getElementById('monthSelect').value;
+            const container = document.getElementById('printArea');
+            container.innerHTML = ''; 
+
+            let startMonth = 0;
+            let endMonth = 11;
+
+            if (monthVal !== "all") {
+                startMonth = parseInt(monthVal);
+                endMonth = parseInt(monthVal);
+            }
+
+            for (let m = startMonth; m <= endMonth; m++) {
+                const totalDays = getDaysInMonth(year, m);
+                
+                // Page 1: Days 1-18
+                const page1Div = document.createElement('div');
+                page1Div.className = 'sheet-page';
+                page1Div.innerHTML = createTable(year, m, 1, 18);
+                container.appendChild(page1Div);
+
+                // Page 2: Days 19-End
+                const page2Div = document.createElement('div');
+                page2Div.className = 'sheet-page';
+                page2Div.innerHTML = createTable(year, m, 19, totalDays);
+                container.appendChild(page2Div);
+            }
+
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        // Initialize Preview
+        window.onload = function() {
+             const year = 2026;
+             const container = document.getElementById('printArea');
+             const totalDays = getDaysInMonth(year, 0); 
+             const page1Div = document.createElement('div');
+             page1Div.className = 'sheet-page';
+             page1Div.innerHTML = createTable(year, 0, 1, 18);
+             container.appendChild(page1Div);
+             const page2Div = document.createElement('div');
+             page2Div.className = 'sheet-page';
+             page2Div.innerHTML = createTable(year, 0, 19, totalDays);
+             container.appendChild(page2Div);
+        };
+    </script>
+</body>
+</html>
